@@ -4,13 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1000px, initial-scale=1.0">
-    <title>Document</title>
+    <title>Biblioteca NYTimes</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <img id="imgHeader" src="\assets\NYTimes-Header2.png" alt="New York Times - Best Sellers">
+        <div>
+            <p id="p1Header">New York Times <img id="registered" src="assets\Registered.png" alt="Registered"></p>
+            <p id="p2Header">Best Sellers</p>
+        </div>
         <div id='titleLista'></div>
         <div>
             <hr id="hrHeader">
@@ -23,15 +29,12 @@
     <footer>
         <div>
             <hr id="hrFooter">
+            <p id="p1Footer">New York Times <img id="registered2" src="assets\Registered2.png" alt="Registered"></p>
+            <p id="p2Footer">Best Sellers</p>
+            <button id="btnFooter"><img id="flechaFooter" src="assets\flecha_arriba.png" alt="flecha hacia arriba"></button>
         </div>
-        <img id="imgFooter" src="\assets\NYTimes-Header3.png" alt="New York Times - Best Sellers">
     </footer>
-    <div id='loader' class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
+    <div id='loader' class="lds-ring"><div></div><div></div><div></div><div></div></div>
     <script src="script.js"></script>
 </body>
 

@@ -47,6 +47,10 @@ document.addEventListener('click', (event) => {
         const amazonURL = event.target.id;
         window.open(amazonURL, '_blank');
     }
+
+    if (event.target.matches('#btnFooter')) {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
 });
 
 // EVENTO LOADER
