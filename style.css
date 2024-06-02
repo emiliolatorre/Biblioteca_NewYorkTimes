@@ -47,9 +47,7 @@ body {
     padding: 0 12px 0 180px;
     margin: 0 0 10px 10px;
     line-height: 78px;
-    align-self: flex-end;
     text-align: right;
-
 }
 
 /* INDEX */
@@ -72,7 +70,7 @@ body {
     padding: 0px 0 70px 20px;
     /* boton abajo padding 70 */
     margin: 20px 10px 0 10px;
-    flex: 0 1 calc(25% - 20px);
+    flex: 0 1 calc(100% - 20px);
 }
 
 .nameLista {
@@ -166,10 +164,10 @@ h1 {
     border: 1px solid lightgrey;
     border-radius: 5px;
     box-shadow: 0px 1.5px 2px grey;
-    max-width: 25%;
+    max-width: 100%;
     padding: 0px 0 15px 20px;
     margin: 20px -5px 0 -5px;
-    flex: 0 1 calc(25% - 30px);
+    flex: 0 1 calc(100% - 30px);
 }
 
 .cardBooks h2 {
@@ -348,4 +346,80 @@ h1 {
 #btnFooter:hover {
     cursor: pointer;
     background-color: rgb(243, 243, 243);
+}
+
+/* Media Queries */
+@media (min-width: 600px) {
+    .cardListas {
+        position: relative;
+        /* boton abajo */
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 70px 20px;
+        /* boton abajo padding 70 */
+        margin: 20px 10px 0 10px;
+        flex: 0 1 calc(50% - 20px);
+    }
+
+    .cardBooks {
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 15px 20px;
+        margin: 20px -5px 0 -5px;
+        flex: 0 1 calc(50% - 30px);
+    }
+}
+
+@media (min-width: 800px) {
+    .cardListas {
+        position: relative;
+        /* boton abajo */
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 70px 20px;
+        /* boton abajo padding 70 */
+        margin: 20px 10px 0 10px;
+        flex: 0 1 calc(33.33% - 20px);
+    }
+
+    .cardBooks {
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 15px 20px;
+        margin: 20px -5px 0 -5px;
+        flex: 0 1 calc(33.33% - 30px);
+    }
+}
+
+@media (min-width: 1100px) {
+    .cardListas {
+        position: relative;
+        /* boton abajo */
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 70px 20px;
+        /* boton abajo padding 70 */
+        margin: 20px 10px 0 10px;
+        flex: 0 1 calc(25% - 20px);
+    }
+
+    .cardBooks {
+        border: 1px solid lightgrey;
+        border-radius: 5px;
+        box-shadow: 0px 1.5px 2px grey;
+        max-width: 100%;
+        padding: 0px 0 15px 20px;
+        margin: 20px -5px 0 -5px;
+        flex: 0 1 calc(25% - 30px);
+    }
 }
