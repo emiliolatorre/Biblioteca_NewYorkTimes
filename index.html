@@ -18,23 +18,127 @@
             <p id="p2Header">Best Sellers</p>
         </div>
         <div id='titleLista'></div>
-        <div>
-            <hr id="hrHeader">
-        </div>
+        <hr id="hrHeader">
     </header>
     <main id="container">
-        <section id="sectionBtnAtras"></section>
-        <section id="containerListas"></section>
+        <section id="sectionFiltrosIndex">
+            <select name="Updated" id="updated" class="filtros">
+                <option value="Todas">Updated: Todas</option>
+                <option value="Weekly">Updated: Weekly</option>
+                <option value="Monthly">Updated: Monthly</option>
+            </select>
+            <select name="Oldest" id="oldest" class="filtros">
+                <option value="Todas">Oldest: Sin Ordenar</option>
+                <option value="Ascendente">Oldest: Ascendente</option>
+                <option value="Descendente">Oldest: Descente</option>
+            </select>
+            <select name="Newest" id="newest" class="filtros">
+                <option value="Todas">Newsest: Sin Ordenar</option>
+                <option value="Ascendente">Newsest: Ascendente</option>
+                <option value="Descendente">Newsest: Descente</option>
+            </select>
+            <select name="AZ" id="az" class="filtros">
+                <option value="Todas">A-Z: Sin Ordenar</option>
+                <option value="AZ">A-Z</option>
+                <option value="ZA">Z-A</option>
+            </select>
+            <form id="formCategories" action="" method="get">
+                <select name="selectCategories" id="selectCategories" class="filtros" multiple>
+                    <option value="Todas">Todas las categorías</option>
+                </select>
+                <button id="btnCategories" type="submit">Filtra por Categoria/s</button>
+            </form>
+        </section>
+        <section id="sectionFiltrosBooks">
+            <button id="btnAtras"><img id="flecha_triangulo_izquierda" src="assets/flecha_triangulo_izquierda.png"
+                    alt="Icono flecha izquierda">BACK TO INDEX</button>
+            <button id="btnFavPrint" style="display: none;">Ver Favoritos <img class="favoritoPrint" src="assets/favoritoPrint.png" alt="Icono corazón favorito"></button>
+            <form id="formTitulo" action="" method="get">
+                <input type="text" name="titulo" id="titulo" placeholder="Escribe tu titulo" class="filtros">
+                <button id="btnTitulo" type="submit">Buscar</button>
+            </form>
+            <form id="formAutor" action="" method="get">
+                <input type="text" name="autor" id="autor" placeholder="Escribe tu Autor" class="filtros">
+                <button id="btnAutor" type="submit">Buscar</button>
+            </form>
+            <select name="AZAutor" id="azAutor" class="filtros">
+                <option value="Todas">Autor: Sin Ordenar</option>
+                <option value="AZ">Autor: A-Z</option>
+                <option value="ZA">Autor: Z-A</option>
+            </select>
+
+
+        </section>
+        <section id="sectionLoader">
+            <div id='loader' class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </section>
+        <section id="containerListas">
+
+
+        </section>
+        <!-- AUTHENTICATION -->
+        <section>
+            <h2>Firebase Authentication</h2>
+            <div id="forms-container">
+                <div>
+                    <h3>Formulario de Registro</h3>
+                    <form id="formRegister" action="#" method="POST">
+                        <div>
+                            <label for="email">Email:</label><br>
+                            <input type="email" id="email" name="email" placeholder="Introduce email..."><br>
+                            <label for="pass">Password:</label><br>
+                            <input type="password" id="pass" name="pass" placeholder="Introduce password..."><br>
+                            <label for="pass2">Repite password:</label><br>
+                            <input type="password" id="pass2" name="pass2" placeholder="Repite password..."><br><br>
+                            <input type="submit" value="Enviar">
+                        </div>
+                    </form>
+                </div>
+
+                <div>
+                    <h3>Formulario de Login</h3>
+                    <form id="formLogin" action="#" method="POST">
+                        <div>
+                            <label for="email2">Email:</label><br>
+                            <input type="email" id="email2" name="email2" placeholder="Introduce email..."><br>
+                            <label for="pass3">Password:</label><br>
+                            <input type="password" id="pass3" name="pass3" placeholder="Introduce password..."><br>
+                            <input type="submit" value="Enviar">
+                        </div>
+                    </form>
+
+                </div>
+                <div>
+                    <h3>Logout</h3>
+                    <div id="logout">
+                        <p id="message"></p>
+                        <button id="salir">Logout</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
     </main>
     <footer>
         <div>
             <hr id="hrFooter">
             <p id="p1Footer">New York Times <img id="registered2" src="assets\Registered2.png" alt="Registered"></p>
             <p id="p2Footer">Best Sellers</p>
-            <button id="btnFooter"><img id="flechaFooter" src="assets\flecha_arriba.png" alt="flecha hacia arriba"></button>
+            <button id="btnFooter"><img id="flechaFooter" src="assets\flecha_arriba.png"
+                    alt="flecha hacia arriba"></button>
         </div>
     </footer>
-    <div id='loader' class="lds-ring"><div></div><div></div><div></div><div></div></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+
     <script src="script.js"></script>
 </body>
 
