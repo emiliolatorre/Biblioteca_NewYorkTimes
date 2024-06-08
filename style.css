@@ -10,6 +10,8 @@ body {
     padding: 0;
 }
 
+/* HEADER */
+
 #divHeader {
     display: flex;
     justify-content: right;
@@ -19,62 +21,62 @@ body {
 }
 
 .btnRegister {
-        background-color: white;
-        border: 0.1px solid rgb(216, 216, 216);
-        border-radius: 3px;
-        box-shadow: 1px 1px 2px grey;
-        font-size: small;
-        font-weight: 600;
-        color: rgb(84, 84, 84);
-        padding: 7px 15px;
-        width: 100px;
-        align-items: center;
-        margin-left: 12px;
-    }
-    
+    background-color: white;
+    border: 0.1px solid rgb(216, 216, 216);
+    border-radius: 3px;
+    box-shadow: 1px 1px 2px grey;
+    font-size: small;
+    font-weight: 600;
+    color: rgb(84, 84, 84);
+    padding: 7px 15px;
+    width: 100px;
+    align-items: center;
+    margin-left: 12px;
+}
+
 .btnRegister:hover {
-        cursor: pointer;
-        background-color: rgb(235, 235, 235);
-    }
+    cursor: pointer;
+    background-color: rgb(235, 235, 235);
+}
 
 .btnLogin {
-        background-color: blue;
-        border: none;
-        border-radius: 3px;
-        box-shadow: 1px 1px 2px grey;
-        font-size: small;
-        font-weight: 600;
-        color: white;
-        padding: 7px 15px;
-        width: 100px;
-        align-items: center;
-        margin-left: 12px;
-    }
-    
+    background-color: blue;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 1px 1px 2px grey;
+    font-size: small;
+    font-weight: 600;
+    color: white;
+    padding: 7px 15px;
+    width: 100px;
+    align-items: center;
+    margin-left: 12px;
+}
+
 .btnLogin:hover {
-        cursor: pointer;
-        background-color: rgb(0, 0, 223);
-    }
+    cursor: pointer;
+    background-color: rgb(0, 0, 223);
+}
 
 .btnLogout {
-        background-color: red;
-        border: none;
-        border-radius: 3px;
-        box-shadow: 1px 1px 2px grey;
-        font-size: small;
-        font-weight: 600;
-        color: white;
-        padding: 7px 15px;
-        width: 100px;
-        align-items: center;
-        margin-left: 5px;
-    }
-    
+    background-color: red;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 1px 1px 2px grey;
+    font-size: small;
+    font-weight: 600;
+    color: white;
+    padding: 7px 15px;
+    width: 100px;
+    align-items: center;
+    margin-left: 5px;
+}
+
 .btnLogout:hover {
-        cursor: pointer;
-        background-color: rgb(235, 0, 0);
-    }
-    
+    cursor: pointer;
+    background-color: rgb(235, 0, 0);
+}
+
 
 #message {
     font-size: small;
@@ -146,7 +148,7 @@ body {
 }
 
 #formRegister input,
-#formLogin input{
+#formLogin input {
     width: 50%;
     height: 30px;
     margin-top: 5px;
@@ -154,12 +156,12 @@ body {
 }
 
 #formRegister label,
-#formLogin label{
+#formLogin label {
     font-weight: 500;
     font-size: medium;
 }
 
-#formRegister input[type="submit"]{
+#formRegister input[type="submit"] {
     background-color: blue;
     color: white;
     border: none;
@@ -170,7 +172,7 @@ body {
     height: 40px;
 }
 
-#formLogin input[type="submit"]{
+#formLogin input[type="submit"] {
     background-color: blue;
     color: white;
     border: none;
@@ -182,8 +184,9 @@ body {
 }
 
 #formRegister input[type="submit"]:hover,
-#formLogin input[type="submit"]:hover{
+#formLogin input[type="submit"]:hover {
     background-color: rgb(0, 0, 232);
+    cursor: pointer;
 }
 
 #linkRegister {
@@ -230,7 +233,16 @@ body {
     text-align: right;
 }
 
-/* INDEX */
+h1 {
+    margin-top: -7px;
+    margin-left: 8px;
+    margin-bottom: 0;
+    font-weight: 400;
+    color: rgb(58, 58, 58);
+}
+
+
+/****** INDEX ******/
 
 #containerListas {
     display: flex;
@@ -304,14 +316,15 @@ body {
     background-color: rgb(243, 243, 243);
 }
 
-/* FILTROS */
+
+/****** FILTROS ******/
 
 #sectionFiltrosIndex {
     display: flex;
 }
 
 #sectionFiltrosBooks {
-    display:flex;
+    display: flex;
     justify-content: right;
     margin-right: 30px;
     margin-top: 0px;
@@ -336,13 +349,16 @@ body {
 select[multiple] {
     height: 35px;
     vertical-align: top;
-  }
-  select[multiple]:focus,
-  select[multiple]:active {
-    height: auto;
-  }
+}
 
-#btnCategories, #btnTitulo, #btnAutor {
+select[multiple]:focus,
+select[multiple]:active {
+    height: auto;
+}
+
+#btnCategories,
+#btnTitulo,
+#btnAutor {
     background-color: rgb(216, 216, 216);
     border: 0.1px solid rgb(216, 216, 216);
     border-radius: 3px;
@@ -353,24 +369,18 @@ select[multiple] {
     padding: 7px 5px;
 }
 
-#btnCategories:hover, #btnTitulo:hover, #btnAutor:hover {
+#btnCategories:hover,
+#btnTitulo:hover,
+#btnAutor:hover {
     cursor: pointer;
     background-color: rgb(203, 203, 203);
 }
 
-#btnTitulo, #btnAutor {
+#btnTitulo,
+#btnAutor {
     margin-right: 10px;
 }
 
-/* BOOKS */
-
-h1 {
-    margin-top: -7px;
-    margin-left: 8px;
-    margin-bottom: 0;
-    font-weight: 400;
-    color: rgb(58, 58, 58);
-}
 
 .btnAtras {
     margin-top: 10px;
@@ -426,6 +436,9 @@ h1 {
     margin-top: 0;
     margin-left: 5px;
 }
+
+
+/****** BOOKS ******/
 
 .cardBooks {
     border: 1px solid lightgrey;
@@ -527,7 +540,8 @@ h1 {
     background-color: rgb(139, 0, 0);
 }
 
-/* LOADER */
+
+/****** LOADER ******/
 
 .lds-ring,
 .lds-ring div {
@@ -578,7 +592,8 @@ h1 {
     }
 }
 
-/* PAGINACIÓN */
+/****** PAGINACIÓN ******/
+
 #divPage {
     align-items: center;
     justify-content: center;
@@ -611,7 +626,8 @@ h1 {
     box-shadow: none;
 }
 
-#flechaPrev, #flechaNext {
+#flechaPrev,
+#flechaNext {
     width: 20px;
     height: 20px;
 }
@@ -622,8 +638,7 @@ h1 {
     font-weight: 500;
 }
 
-/* //FOOTER */
-
+/****** FOOTER ******/
 
 #hrFooter {
     height: 3px;
