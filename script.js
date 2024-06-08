@@ -1,4 +1,4 @@
-//**** AUTHENTICATION ****
+//**** FIREBASE_Firestore_Auth ****
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,26 +15,24 @@ firebase.initializeApp(firebaseConfig);// Inicializaar app Firebase
 const db = firebase.firestore();// db representa mi BBDD //inicia Firestore
 const auth = firebase.auth();
 
-
-
 //**** CONSTANTS ****
 
 // API NYTimes
 const apiKey = '6M27vjBFvWMv2cJNyYVuFobzfRm0quel'
 const urlIndex = `https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`
 
-const containerListas = document.querySelector('#containerListas')
-const fragment = document.createDocumentFragment()
-const titleLista = document.querySelector('#titleLista')
+const containerListas = document.querySelector('#containerListas');
+const fragment = document.createDocumentFragment();
+const titleLista = document.querySelector('#titleLista');
 const btnAtras = document.querySelector('#btnAtras');
 const btnAtrasBooks = document.querySelector('#btnAtrasBooks');
-const selectUpdated = document.querySelector('#updated')
-const selectOldest = document.querySelector('#oldest')
-const selectNewest = document.querySelector('#newest')
-const selectAZ = document.querySelector('#az')
-const formCategories = document.querySelector('#formCategories')
-const selectCategories = document.querySelector('#selectCategories')
-const loader = document.querySelector('#loader')
+const selectUpdated = document.querySelector('#updated');
+const selectOldest = document.querySelector('#oldest');
+const selectNewest = document.querySelector('#newest');
+const selectAZ = document.querySelector('#az');
+const formCategories = document.querySelector('#formCategories');
+const selectCategories = document.querySelector('#selectCategories');
+const loader = document.querySelector('#loader');
 const sectionFiltrosIndex = document.querySelector('#sectionFiltrosIndex');
 const sectionFiltrosBooks = document.querySelector('#sectionFiltrosBooks');
 const formTitulo = document.querySelector('#formTitulo');
@@ -57,13 +55,14 @@ const pageInfo = document.querySelector('#pageInfo');
 
 sectionFiltrosBooks.style.display = 'none';
 
+// constantes paginación
 let arrayFavs = [];
 let currentPage = 1;
 const booksPerPage = 4;
 let dbBooks = [];
 
 
-//**** EVENTS ****
+//****** EVENTS ******
 
 // Events Delegation - Buttons
 document.addEventListener('click', (event) => {
@@ -77,10 +76,14 @@ document.addEventListener('click', (event) => {
         urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
         getBooks(urlBooks)
             .then((resp) => {
-                const booksArray = resp.results
-                printBooks(booksArray)
+                const booksArray = resp.results;
+                printBooks(booksArray);
             })
             .catch((error) => { console.error(error) })
+
+        formTitulo.style.display = 'flex';
+        formAutor.style.display = 'flex';
+        selectAZAutor.style.display = 'flex';
     }
 
     if (event.target.matches('#btnAtras')) {
@@ -89,7 +92,7 @@ document.addEventListener('click', (event) => {
         sectionFiltrosIndex.style.display = 'flex';
         sectionFiltrosBooks.style.display = 'none';
         currentPage = 1;
-        divPage.style.display='none'
+        divPage.style.display = 'none'
         getIndex(`${urlIndex}`)
             .then((resp) => {
                 const indexArray = resp.results
@@ -109,8 +112,8 @@ document.addEventListener('click', (event) => {
         urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
         getBooks(urlBooks)
             .then((resp) => {
-                const booksArray = resp.results
-                printBooks(booksArray)
+                const booksArray = resp.results;
+                printBooks(booksArray);
             })
             .catch((error) => { console.error(error) })
 
@@ -323,17 +326,15 @@ formCategories.addEventListener('submit', (event) => {
 formTitulo.addEventListener('submit', (event) => {
     event.preventDefault();
     const inputTitulo = [formTitulo.titulo.value.toUpperCase()];
-    console.log(inputTitulo)
     getBooks(urlBooks)
         .then((resp) => {
-            const resultsArray = resp.results
-            const booksArray = resultsArray.books
-            const matchTitulo = booksArray.filter(element => element.title.includes(inputTitulo))
-            console.log(matchTitulo)
-            printBooksFiltered(matchTitulo)
+            const resultsArray = resp.results;
+            const booksArray = resultsArray.books;
+            const matchTitulo = booksArray.filter(element => element.title.includes(inputTitulo));
+            printBooksFiltered(matchTitulo);
         })
         .catch((error) => { console.error(error) })
-    formAutor.reset()
+    formAutor.reset();
     btnAtrasBooks.style.display = 'none';
     btnAtras.style.display = 'flex';
 });
@@ -344,14 +345,13 @@ formAutor.addEventListener('submit', (event) => {
     const inputAutor = [formAutor.autor.value];
     getBooks(urlBooks)
         .then((resp) => {
-            const resultsArray = resp.results
-            const booksArray = resultsArray.books
-            const matchTitulo = booksArray.filter(element => element.author.includes(inputAutor))
-            console.log(matchTitulo)
-            printBooksFiltered(matchTitulo)
+            const resultsArray = resp.results;
+            const booksArray = resultsArray.books;
+            const matchTitulo = booksArray.filter(element => element.author.includes(inputAutor));
+            printBooksFiltered(matchTitulo);
         })
         .catch((error) => { console.error(error) })
-    formTitulo.reset()
+    formTitulo.reset();
     btnAtrasBooks.style.display = 'none';
     btnAtras.style.display = 'flex';
 });
@@ -362,29 +362,29 @@ selectAZAutor.addEventListener('change', (event) => {
         containerListas.innerHTML = '';
         getBooks(urlBooks)
             .then((resp) => {
-                const arrayResultados = resp.results
-                const BooksArray = arrayResultados.books
-                printBooksFiltered(BooksArray)
+                const arrayResultados = resp.results;
+                const BooksArray = arrayResultados.books;
+                printBooksFiltered(BooksArray);
             })
             .catch((error) => { console.error(error) })
     } else if (event.target.value === 'AZ') {
         containerListas.innerHTML = '';
         getBooks(urlBooks)
             .then((resp) => {
-                const arrayResultados = resp.results
-                const BooksArray = arrayResultados.books
+                const arrayResultados = resp.results;
+                const BooksArray = arrayResultados.books;
                 const resultadoAZ = BooksArray.sort((a, b) => a.author.localeCompare(b.author));
-                printBooksFiltered(resultadoAZ)
+                printBooksFiltered(resultadoAZ);
             })
             .catch((error) => { console.error(error) })
     } else if (event.target.value === 'ZA') {
         containerListas.innerHTML = '';
         getBooks(urlBooks)
             .then((resp) => {
-                const arrayResultados = resp.results
-                const BooksArray = arrayResultados.books
+                const arrayResultados = resp.results;
+                const BooksArray = arrayResultados.books;
                 const resultadoZA = BooksArray.sort((a, b) => b.author.localeCompare(a.author));
-                printBooksFiltered(resultadoZA)
+                printBooksFiltered(resultadoZA);
             })
             .catch((error) => { console.error(error) })
     }
@@ -392,7 +392,8 @@ selectAZAutor.addEventListener('change', (event) => {
     btnAtras.style.display = 'flex';
 });
 
-//**** FUNCTIONS ****
+
+//****** FUNCTIONS ******
 
 // Loader
 const loaderOn = () => loader.style.display = 'flex';
@@ -415,7 +416,7 @@ const getIndex = async (url) => {
     } finally {
         loaderOff();
     }
-}
+};
 
 getIndex(`${urlIndex}`)
     .then((resp) => {
@@ -454,7 +455,7 @@ const printIndex = (array) => {
         fragment.append(divLista)
     })
     containerListas.append(fragment)
-}
+};
 
 // BOOKS
 
@@ -483,58 +484,65 @@ const getBooks = async (url) => {
     } finally {
         loaderOff();
     }
-}
+};
 
 // PAGINACION
 
 const nextPage = () => {
-    currentPage = currentPage +1
-    printBooksFiltered(dbBooks)
-}
+    currentPage = currentPage + 1;
+    printBooksFiltered(dbBooks);
+};
 
 const prevPage = () => {
-    currentPage = currentPage -1
-    printBooksFiltered(dbBooks)
-}
+    currentPage = currentPage - 1;
+    printBooksFiltered(dbBooks);
+};
 
-function getBooksSlice (pagina = 1) {
-	const sliceInitial = (currentPage - 1) * booksPerPage;
-	const sliceFinal = sliceInitial + booksPerPage;
-	return dbBooks.slice(sliceInitial, sliceFinal);
-}
-
+function getBooksSlice(pagina = 1) {
+    const sliceInitial = (currentPage - 1) * booksPerPage;
+    const sliceFinal = sliceInitial + booksPerPage;
+    return dbBooks.slice(sliceInitial, sliceFinal);
+};
 
 const getTotalPages = () => {
     return Math.ceil(dbBooks.length / booksPerPage);
-}
-
+};
 
 function pagesButtons() {
-	// Comprobar que no se pueda retroceder
-	if (currentPage === 1) {
-		btnPageBack.setAttribute("disabled", true);
-	} else {
-		btnPageBack.removeAttribute("disabled");
-	}
-	// Comprobar que no se pueda avanzar
-	if (currentPage === getTotalPages()) {
-		btnPageNext.setAttribute("disabled", true);
-	} else {
-		btnPageNext.removeAttribute("disabled");
-	}
-}
+    // Comprobar que no se pueda retroceder
+    if (currentPage === 1) {
+        btnPageBack.setAttribute("disabled", true);
+    } else {
+        btnPageBack.removeAttribute("disabled");
+    }
+    // Comprobar que no se pueda avanzar
+    if (currentPage === getTotalPages()) {
+        btnPageNext.setAttribute("disabled", true);
+    } else {
+        btnPageNext.removeAttribute("disabled");
+    }
+};
 
 // Events btns Paginación
 btnPageBack.addEventListener("click", prevPage);
 btnPageNext.addEventListener("click", nextPage);
 
+// PRINT
 
+const loadFavs = async () => {
+    const user = firebase.auth().currentUser;
+    arrayFavs = [];
 
-
-
-
-
-
+    try {
+        const querySnapshot = await db.collection("users").where("id", "==", user.uid).get();
+        querySnapshot.forEach((doc) => {
+            const objFav = doc.data().favourites;
+            arrayFavs.push(objFav);
+        });
+    } catch (error) {
+        console.error("Error getting favorites:", error);
+    }
+};
 
 const printBooks = async (array) => {
     await loadFavs();
@@ -576,7 +584,7 @@ const printBooks = async (array) => {
         // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
         const stringjson = JSON.stringify(arrayFavs);
         const found = stringjson.includes(title)
-        
+
         if (found) {
             btnFav.classList.add('btnFav2');
             btnFav.querySelector('img').src = 'assets/favorito2.png';
@@ -597,21 +605,6 @@ const printBooks = async (array) => {
     lista.id = 'h1Lista'
     titleLista.append(lista)
     containerListas.append(fragment);
-};
-
-const loadFavs = async () => {
-    const user = firebase.auth().currentUser;
-    arrayFavs = [];
-
-    try {
-        const querySnapshot = await db.collection("users").where("id", "==", user.uid).get();
-        querySnapshot.forEach((doc) => {
-            const objFav = doc.data().favourites;
-            arrayFavs.push(objFav);
-        });
-    } catch (error) {
-        console.error("Error getting favorites:", error);
-    }
 };
 
 const printBooksFiltered = async (array) => {
@@ -652,7 +645,7 @@ const printBooksFiltered = async (array) => {
         // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
         const stringjson = JSON.stringify(arrayFavs);
         const found = stringjson.includes(title)
-        
+
         if (found) {
             btnFav.classList.add('btnFav2');
             btnFav.querySelector('img').src = 'assets/favorito2.png';
@@ -672,14 +665,14 @@ const printBooksFiltered = async (array) => {
     containerListas.append(fragment);
 };
 
-//**** AUTHENTICATION ****
+
+//****** AUTHENTICATION ******
 
 const createUser = (user) => {
     db.collection("users")
         .add(user)
         .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id)
-            readAll();
+            console.log("Document written with ID: ", docRef.id);
         })
         .catch((error) => console.error("Error adding document: ", error));
 };
@@ -712,7 +705,7 @@ document.getElementById("formRegister").addEventListener("submit", function (eve
     let pass2 = event.target.elements.pass2.value;
 
     pass === pass2 ? signUpUser(email, pass) : alert("error password");
-})
+});
 
 const signInUser = (email, password) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
@@ -729,28 +722,43 @@ const signInUser = (email, password) => {
             console.log(errorCode)
             console.log(errorMessage)
         });
-}
+};
 
 const signOut = () => {
     let user = firebase.auth().currentUser;
 
     firebase.auth().signOut().then(() => {
-        console.log("Sale del sistema: " + user.email)
-        btnFavPrint.style.display = 'none'
-        btnAtrasBooks.style.display = 'none'
-        btnAtras.style.display = 'flex'
+        console.log("Sale del sistema: " + user.email);
+        btnFavPrint.style.display = 'none';
+        btnAtrasBooks.style.display = 'none';
+        btnAtras.style.display = 'flex';
     }).catch((error) => {
         console.log("hubo un error: " + error);
     });
-}
+};
 
 document.getElementById("formLogin").addEventListener("submit", function (event) {
     event.preventDefault();
     let email = event.target.elements.email2.value;
     let pass = event.target.elements.pass3.value;
     signInUser(email, pass)
-})
-document.getElementById("salir").addEventListener("click", signOut);
+});
+
+document.getElementById("salir").addEventListener("click", function (event) {
+    signOut();
+    titleLista.innerHTML = '';
+    containerListas.innerHTML = '';
+    sectionFiltrosIndex.style.display = 'flex';
+    sectionFiltrosBooks.style.display = 'none';
+    currentPage = 1;
+    divPage.style.display = 'none'
+    getIndex(`${urlIndex}`)
+        .then((resp) => {
+            const indexArray = resp.results
+            printIndex(indexArray)
+        })
+        .catch((error) => { console.error(error) })
+});
 
 // Listener de usuario en el sistema
 // Controlar usuario logado
@@ -804,12 +812,15 @@ document.addEventListener('click', async (event) => {
     }
 });
 
+
+//****** FIRESTORE DB ******
+
 const addBookFav = (uid, bookData) => {
     db.collection("users").where("id", "==", uid)
         .get()
         .then((docs) => {
             docs.forEach(async (doc) => {
-                const docId = doc.id
+                const docId = doc.id;
                 const userRef = db.collection('users').doc(docId);
 
                 await userRef.update({ favourites: firebase.firestore.FieldValue.arrayUnion(bookData) })
@@ -824,14 +835,14 @@ const addBookFav = (uid, bookData) => {
         .catch((error) => {
             alert(error);
         });
-}
+};
 
 const removeBookFav = (uid, bookData) => {
     db.collection("users").where("id", "==", uid)
         .get()
         .then((docs) => {
             docs.forEach(async (doc) => {
-                const docId = doc.id
+                const docId = doc.id;
                 const userRef = db.collection('users').doc(docId);
 
                 await userRef.update({ favourites: firebase.firestore.FieldValue.arrayRemove(bookData) })
@@ -846,7 +857,7 @@ const removeBookFav = (uid, bookData) => {
         .catch((error) => {
             alert(error);
         });
-}
+};
 
 document.addEventListener('click', async (event) => {
     if (event.target.matches('#btnFavPrint')) {
@@ -868,36 +879,4 @@ document.addEventListener('click', async (event) => {
 
         currentPage = 1;
     }
-})
-
-
-// - Paginación: mostrar libros de 5 en 5
-// Desplegar proyecto en GitHub pages para hacer hosting de la web (editado)
-/* Especificaciones (Fase II - Firebase):
-
-Autenticación con Firebase auth: Los usuarios que se autentiquen podrán guardar sus favoritos
-Añadir un botón de favoritos en cada libro
-Los favoritos se guardarán en en Firebase Firestore
-Necesitarás una vista extra en el front para que cada usuario pueda ver sus favoritos
-*/
-
-/* MODELO DE DATOS:
-- Coleccion: usuarios
-- Documento: id de usuario
-- Data o Campos:
-    - Email
-    - Password
-    - Favoritos: {
-        book_image: ***,
-        weeks_on_list: ***,
-        description: ***,
-        rank: ***,
-        title: ***,
-        amazon_product_url: ***
-    }
-
-al darle a like, no funciona si no estas logeado (alert o llevarlo a register / login)
-una vez logeado, cada like crear un objeto libro dentro del mapa Favoritos
-
-
-*/
+});
