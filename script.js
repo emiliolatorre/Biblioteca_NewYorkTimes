@@ -880,3 +880,5 @@ document.addEventListener('click', async (event) => {
         currentPage = 1;
     }
 });
+
+// END
