@@ -26,7 +26,8 @@ const urlIndex = `https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=
 const containerListas = document.querySelector('#containerListas')
 const fragment = document.createDocumentFragment()
 const titleLista = document.querySelector('#titleLista')
-const btnAtras = document.querySelector('#btnAtras')
+const btnAtras = document.querySelector('#btnAtras');
+const btnAtrasBooks = document.querySelector('#btnAtrasBooks');
 const selectUpdated = document.querySelector('#updated')
 const selectOldest = document.querySelector('#oldest')
 const selectNewest = document.querySelector('#newest')
@@ -40,8 +41,26 @@ const formTitulo = document.querySelector('#formTitulo');
 const formAutor = document.querySelector('#formAutor');
 const selectAZAutor = document.querySelector('#azAutor');
 const btnFavPrint = document.querySelector('#btnFavPrint');
+const divRegister = document.querySelector('#divRegister');
+const divLogin = document.querySelector('#divLogin');
+const divLogout = document.querySelector('#divLogout');
+const btnExit = document.querySelector('.exit');
+const btnRegister = document.querySelector('#btnRegister');
+const btnLogin = document.querySelector('#btnLogin');
+const divRegisterContainer = document.querySelector('#divRegister-container');
+const divLoginContainer = document.querySelector('#divLogin-container');
+
+const divPage = document.querySelector('#divPage');
+const btnPageBack = document.querySelector('#pageBack');
+const btnPageNext = document.querySelector('#pageNext');
+const pageInfo = document.querySelector('#pageInfo');
 
 sectionFiltrosBooks.style.display = 'none';
+
+let arrayFavs = [];
+let currentPage = 1;
+const booksPerPage = 4;
+let dbBooks = [];
 
 
 //**** EVENTS ****
@@ -69,12 +88,38 @@ document.addEventListener('click', (event) => {
         containerListas.innerHTML = '';
         sectionFiltrosIndex.style.display = 'flex';
         sectionFiltrosBooks.style.display = 'none';
+        currentPage = 1;
+        divPage.style.display='none'
         getIndex(`${urlIndex}`)
             .then((resp) => {
                 const indexArray = resp.results
                 printIndex(indexArray)
             })
             .catch((error) => { console.error(error) })
+    }
+
+    if (event.target.matches('#btnAtrasBooks')) {
+        const lista = titleLista.textContent;
+        titleLista.innerHTML = '';
+        containerListas.innerHTML = '';
+        currentPage = 1;
+
+        const listaArray = lista.split(' ');
+        const listaGuiones = listaArray.join('-');
+        urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
+        getBooks(urlBooks)
+            .then((resp) => {
+                const booksArray = resp.results
+                printBooks(booksArray)
+            })
+            .catch((error) => { console.error(error) })
+
+        formTitulo.style.display = 'flex';
+        formAutor.style.display = 'flex';
+        selectAZAutor.style.display = 'flex';
+
+        btnAtrasBooks.style.display = 'none';
+        btnAtras.style.display = 'flex';
     }
 
     if (event.target.matches('.btnBuy')) {
@@ -84,6 +129,27 @@ document.addEventListener('click', (event) => {
 
     if (event.target.matches('#btnFooter')) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (event.target.matches('#btnRegister')) {
+        divRegisterContainer.classList.add('show');
+    }
+
+    if (event.target.matches('#btnExitRegister')) {
+        divRegisterContainer.classList.remove('show')
+    }
+
+    if (event.target.matches('#btnLogin')) {
+        divLoginContainer.classList.add('show');
+    }
+
+    if (event.target.matches('#btnExitLogin')) {
+        divLoginContainer.classList.remove('show')
+    }
+
+    if (event.target.matches('#linkRegister')) {
+        divLoginContainer.classList.remove('show');
+        divRegisterContainer.classList.add('show');
     }
 });
 
@@ -268,6 +334,8 @@ formTitulo.addEventListener('submit', (event) => {
         })
         .catch((error) => { console.error(error) })
     formAutor.reset()
+    btnAtrasBooks.style.display = 'none';
+    btnAtras.style.display = 'flex';
 });
 
 // Event Book - Filter Author
@@ -284,14 +352,12 @@ formAutor.addEventListener('submit', (event) => {
         })
         .catch((error) => { console.error(error) })
     formTitulo.reset()
+    btnAtrasBooks.style.display = 'none';
+    btnAtras.style.display = 'flex';
 });
 
 // Event Books - Filter AZ
 selectAZAutor.addEventListener('change', (event) => {
-    // const lista = document.querySelector('#h1Lista')
-    //     const listaArray = lista.split(' ');
-    //     const listaGuiones = listaArray.join('-');
-    // urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
     if (event.target.value === 'Todas') {
         containerListas.innerHTML = '';
         getBooks(urlBooks)
@@ -322,6 +388,8 @@ selectAZAutor.addEventListener('change', (event) => {
             })
             .catch((error) => { console.error(error) })
     }
+    btnAtrasBooks.style.display = 'none';
+    btnAtras.style.display = 'flex';
 });
 
 //**** FUNCTIONS ****
@@ -417,9 +485,68 @@ const getBooks = async (url) => {
     }
 }
 
-const printBooks = (array) => {
+// PAGINACION
+
+const nextPage = () => {
+    currentPage = currentPage +1
+    printBooksFiltered(dbBooks)
+}
+
+const prevPage = () => {
+    currentPage = currentPage -1
+    printBooksFiltered(dbBooks)
+}
+
+function getBooksSlice (pagina = 1) {
+	const sliceInitial = (currentPage - 1) * booksPerPage;
+	const sliceFinal = sliceInitial + booksPerPage;
+	return dbBooks.slice(sliceInitial, sliceFinal);
+}
+
+
+const getTotalPages = () => {
+    return Math.ceil(dbBooks.length / booksPerPage);
+}
+
+
+function pagesButtons() {
+	// Comprobar que no se pueda retroceder
+	if (currentPage === 1) {
+		btnPageBack.setAttribute("disabled", true);
+	} else {
+		btnPageBack.removeAttribute("disabled");
+	}
+	// Comprobar que no se pueda avanzar
+	if (currentPage === getTotalPages()) {
+		btnPageNext.setAttribute("disabled", true);
+	} else {
+		btnPageNext.removeAttribute("disabled");
+	}
+}
+
+// Events btns Paginación
+btnPageBack.addEventListener("click", prevPage);
+btnPageNext.addEventListener("click", nextPage);
+
+
+
+
+
+
+
+
+
+const printBooks = async (array) => {
+    await loadFavs();
     const arrayBooks = array.books
-    arrayBooks.forEach(({ book_image, weeks_on_list, description, rank, title, amazon_product_url }) => {
+    dbBooks = arrayBooks
+    const booksSlice = getBooksSlice(currentPage)
+    pagesButtons();
+    pageInfo.textContent = `${currentPage} / ${getTotalPages()}`;
+    divPage.style.display = 'flex';
+
+    booksSlice.forEach((elemento) => {
+        const { book_image, weeks_on_list, description, rank, title, amazon_product_url } = elemento;
         const divBook = document.createElement('div');
         divBook.classList.add('cardBooks');
 
@@ -444,11 +571,22 @@ const printBooks = (array) => {
 
         const btnFav = document.createElement('button')
         btnFav.innerHTML = `<img class="corazon_favorito" src="assets/favorito.png" alt="Icono corazón favorito" style="pointer-events: none;">`;
-        btnFav.classList.add('btnFav');
         btnFav.id = `{"book_image": "${book_image}", "weeks_on_list": "${weeks_on_list}", "description": "${description}", "rank": "${rank}", "title": "${title}", "amazon_product_url": "${amazon_product_url}"}`;
 
+        // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
+        const stringjson = JSON.stringify(arrayFavs);
+        const found = stringjson.includes(title)
+        
+        if (found) {
+            btnFav.classList.add('btnFav2');
+            btnFav.querySelector('img').src = 'assets/favorito2.png';
+        } else {
+            btnFav.classList.add('btnFav');
+            btnFav.querySelector('img').src = 'assets/favorito.png';
+        }
+
         const divBtns = document.createElement('div');
-        divBtns.id = 'divBtns';
+        divBtns.classList.add('divBtns');
 
         divBtns.append(btn, btnFav)
         divBook.append(rankTitle, imgBook, weeks, descriptionBook, divBtns);
@@ -461,8 +599,30 @@ const printBooks = (array) => {
     containerListas.append(fragment);
 };
 
-const printBooksFiltered = (array) => {
-    array.forEach(({ book_image, weeks_on_list, description, rank, title, amazon_product_url }) => {
+const loadFavs = async () => {
+    const user = firebase.auth().currentUser;
+    arrayFavs = [];
+
+    try {
+        const querySnapshot = await db.collection("users").where("id", "==", user.uid).get();
+        querySnapshot.forEach((doc) => {
+            const objFav = doc.data().favourites;
+            arrayFavs.push(objFav);
+        });
+    } catch (error) {
+        console.error("Error getting favorites:", error);
+    }
+};
+
+const printBooksFiltered = async (array) => {
+    await loadFavs();
+    dbBooks = array
+    const booksSlice = getBooksSlice(currentPage)
+    pagesButtons();
+    pageInfo.textContent = `${currentPage} / ${getTotalPages()}`;
+    divPage.style.display = 'flex';
+
+    booksSlice.forEach(({ book_image, weeks_on_list, description, rank, title, amazon_product_url }) => {
         const divBook = document.createElement('div');
         divBook.classList.add('cardBooks');
 
@@ -486,12 +646,23 @@ const printBooksFiltered = (array) => {
         btn.id = amazon_product_url
 
         const btnFav = document.createElement('button')
-        btnFav.innerHTML = `<img class="corazon_favorito" src="assets/favorito.png" alt="Icono corazón favorito" style="pointer-events: none;">`
-        btnFav.classList.add('btnFav');
+        btnFav.innerHTML = `<img class="corazon_favorito" src="assets/favorito.png" alt="Icono corazón favorito" style="pointer-events: none;">`;
         btnFav.id = `{"book_image": "${book_image}", "weeks_on_list": "${weeks_on_list}", "description": "${description}", "rank": "${rank}", "title": "${title}", "amazon_product_url": "${amazon_product_url}"}`;
 
+        // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
+        const stringjson = JSON.stringify(arrayFavs);
+        const found = stringjson.includes(title)
+        
+        if (found) {
+            btnFav.classList.add('btnFav2');
+            btnFav.querySelector('img').src = 'assets/favorito2.png';
+        } else {
+            btnFav.classList.add('btnFav');
+            btnFav.querySelector('img').src = 'assets/favorito.png';
+        }
+
         const divBtns = document.createElement('div');
-        divBtns.id = 'divBtns';
+        divBtns.classList.add('divBtns');
 
         divBtns.append(btn, btnFav)
         divBook.append(rankTitle, imgBook, weeks, descriptionBook, divBtns);
@@ -521,12 +692,12 @@ const signUpUser = (email, password) => {
             // Signed in
             let user = userCredential.user;
             console.log(`se ha registrado ${user.email} ID:${user.uid}`)
-            alert(`se ha registrado ${user.email} ID:${user.uid}`)
             // Saves user in firestore
             createUser({
                 id: user.uid,
                 email: user.email
             });
+            divRegisterContainer.classList.remove('show')
 
         })
         .catch((error) => {
@@ -548,9 +719,9 @@ const signInUser = (email, password) => {
         .then((userCredential) => {
             // Signed in
             let user = userCredential.user;
-            console.log(`se ha logado ${user.email} ID:${user.uid}`)
-            alert(`se ha logado ${user.email} ID:${user.uid}`)
+            console.log(`se ha logado ${user.email} ID:${user.uid}`);
             console.log("USER", user);
+            divLoginContainer.classList.remove('show');
         })
         .catch((error) => {
             let errorCode = error.code;
@@ -566,6 +737,8 @@ const signOut = () => {
     firebase.auth().signOut().then(() => {
         console.log("Sale del sistema: " + user.email)
         btnFavPrint.style.display = 'none'
+        btnAtrasBooks.style.display = 'none'
+        btnAtras.style.display = 'flex'
     }).catch((error) => {
         console.log("hubo un error: " + error);
     });
@@ -584,62 +757,118 @@ document.getElementById("salir").addEventListener("click", signOut);
 firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         console.log(`Está en el sistema:${user.email} ${user.uid}`);
-        document.getElementById("message").innerText = `Está en el sistema: ${user.uid}`;
+        document.getElementById("message").innerText = `¡Bienvenido ${user.email}!`;
 
         btnFavPrint.style.display = 'flex'
 
+        divLogout.style.display = 'block'
+        btnRegister.style.display = 'none'
+        btnLogin.style.display = 'none'
+
     } else {
         console.log("no hay usuarios en el sistema");
-        document.getElementById("message").innerText = `No hay usuarios en el sistema`;
+        document.getElementById("message").innerText = ``;
+
+        divLogout.style.display = 'none'
+        btnRegister.style.display = 'block'
+        btnLogin.style.display = 'block'
     }
 });
 
 document.addEventListener('click', async (event) => {
-    if (event.target.matches('.btnFav')) {
-        const user = firebase.auth().currentUser;
+    const user = firebase.auth().currentUser;
+
+    if (event.target.classList.contains('btnFav')) {
 
         if (user) {
-        const bookData = JSON.parse(event.target.id)
-        addBookFav(user.uid, bookData)
+            const bookData = JSON.parse(event.target.id);
+            addBookFav(user.uid, bookData);
+            event.target.classList.remove('btnFav');
+            event.target.classList.add('btnFav2');
+            event.target.querySelector('img').src = 'assets/favorito2.png';
+
         } else {
-            alert('Regístrate para guardar en Favoritos.')
+            divLoginContainer.classList.add('show');
         }
-    }});
+
+    } else if (event.target.classList.contains('btnFav2')) {
+        if (user) {
+            const bookData = JSON.parse(event.target.id);
+            removeBookFav(user.uid, bookData);
+            event.target.classList.remove('btnFav2');
+            event.target.classList.add('btnFav');
+            event.target.querySelector('img').src = 'assets/favorito.png';
+        } else {
+            divLoginContainer.classList.add('show');
+        }
+    }
+});
 
 const addBookFav = (uid, bookData) => {
-        db.collection("users").where("id", "==", uid)
-          .get()
-          .then((docs) => {
+    db.collection("users").where("id", "==", uid)
+        .get()
+        .then((docs) => {
             docs.forEach(async (doc) => {
                 const docId = doc.id
                 const userRef = db.collection('users').doc(docId);
 
-        await userRef.update({favourites: firebase.firestore.FieldValue.arrayUnion(bookData)})
-                .then(() => {
-                    alert('Libro guardado en Favoritos.')
-                })
-                .catch((error) => {
-                    throw `Error agregando el libro a favoritos: ${error}`;
-                });
+                await userRef.update({ favourites: firebase.firestore.FieldValue.arrayUnion(bookData) })
+                    .then(() => {
+                        alert('Libro guardado en Favoritos.')
+                    })
+                    .catch((error) => {
+                        throw `Error agregando el libro a favoritos: ${error}`;
+                    });
             });
-          })
-          .catch((error) => {
+        })
+        .catch((error) => {
             alert(error);
-          });
-      }
-      
+        });
+}
+
+const removeBookFav = (uid, bookData) => {
+    db.collection("users").where("id", "==", uid)
+        .get()
+        .then((docs) => {
+            docs.forEach(async (doc) => {
+                const docId = doc.id
+                const userRef = db.collection('users').doc(docId);
+
+                await userRef.update({ favourites: firebase.firestore.FieldValue.arrayRemove(bookData) })
+                    .then(() => {
+                        alert('Libro eliminado de Favoritos.')
+                    })
+                    .catch((error) => {
+                        throw `Error agregando el libro a favoritos: ${error}`;
+                    });
+            });
+        })
+        .catch((error) => {
+            alert(error);
+        });
+}
+
 document.addEventListener('click', async (event) => {
     if (event.target.matches('#btnFavPrint')) {
         const user = firebase.auth().currentUser;
         db.collection("users").where("id", "==", user.uid)
-          .get()
-          .then((docs) => {
-            docs.forEach((doc) => {
-                const dataBooksToPrint = doc.data().favourites;
-                printBooksFiltered(dataBooksToPrint)
+            .get()
+            .then((docs) => {
+                docs.forEach((doc) => {
+                    const dataBooksToPrint = doc.data().favourites;
+                    printBooksFiltered(dataBooksToPrint)
+                })
             })
-        })
-    }})
+        btnAtrasBooks.style.display = 'flex';
+        btnAtras.style.display = 'none';
+
+        formTitulo.style.display = 'none';
+        formAutor.style.display = 'none';
+        selectAZAutor.style.display = 'none';
+
+        currentPage = 1;
+    }
+})
 
 
 // - Paginación: mostrar libros de 5 en 5

@@ -14,6 +14,14 @@
 <body>
     <header>
         <div>
+            <div id="divHeader">
+                <button id="btnRegister" class="btnRegister">Register</button>
+                <button id="btnLogin" class="btnLogin">Login</button>
+                <div id="divLogout">
+                    <p id="message"></p>
+                    <button id="salir" class="btnLogout">Logout</button>
+                </div>
+            </div>
             <p id="p1Header">New York Times <img id="registered" src="assets\Registered.png" alt="Registered"></p>
             <p id="p2Header">Best Sellers</p>
         </div>
@@ -50,9 +58,12 @@
             </form>
         </section>
         <section id="sectionFiltrosBooks">
-            <button id="btnAtras"><img id="flecha_triangulo_izquierda" src="assets/flecha_triangulo_izquierda.png"
+            <button id="btnAtras" class="btnAtras"><img id="flecha_triangulo_izquierda" src="assets/flecha_triangulo_izquierda.png"
                     alt="Icono flecha izquierda">BACK TO INDEX</button>
-            <button id="btnFavPrint" style="display: none;">Ver Favoritos <img class="favoritoPrint" src="assets/favoritoPrint.png" alt="Icono corazón favorito"></button>
+            <button id="btnAtrasBooks" class="btnAtras" style="display: none;"><img id="flecha_triangulo_izquierda" src="assets/flecha_triangulo_izquierda.png"
+                    alt="Icono flecha izquierda">BACK TO BOOKS</button>
+            <button id="btnFavPrint" style="display: none;">Ver Favoritos <img class="favoritoPrint"
+                    src="assets/favoritoPrint.png" alt="Icono corazón favorito"></button>
             <form id="formTitulo" action="" method="get">
                 <input type="text" name="titulo" id="titulo" placeholder="Escribe tu titulo" class="filtros">
                 <button id="btnTitulo" type="submit">Buscar</button>
@@ -81,45 +92,56 @@
 
 
         </section>
+        <!-- PAGINACIÓN -->
+        <div id="divPage" style="display: none;">
+            <button id="pageBack" class="btnsPage"><img id="flechaPrev" src="assets\flechaPrev.png"
+                alt="flecha izquierda"></button>
+            <span id="pageInfo"></span>
+            <button id="pageNext" class="btnsPage"><img id="flechaNext" src="assets\flechaNext.png"
+                alt="flecha derecha"></button>
+            </div>
+        
         <!-- AUTHENTICATION -->
         <section>
-            <h2>Firebase Authentication</h2>
             <div id="forms-container">
-                <div>
-                    <h3>Formulario de Registro</h3>
-                    <form id="formRegister" action="#" method="POST">
-                        <div>
-                            <label for="email">Email:</label><br>
-                            <input type="email" id="email" name="email" placeholder="Introduce email..."><br>
-                            <label for="pass">Password:</label><br>
-                            <input type="password" id="pass" name="pass" placeholder="Introduce password..."><br>
-                            <label for="pass2">Repite password:</label><br>
-                            <input type="password" id="pass2" name="pass2" placeholder="Repite password..."><br><br>
-                            <input type="submit" value="Enviar">
+                <div id="divRegister-container" class="divPopup">
+                    <div id="divRegister" class="divInside">
+                        <div class="headExit">
+                            <h3 class="titleRegister">Formulario de Registro</h3>
+                            <button id="btnExitRegister" class="btnExit">
+                                <img class="cruz_exit" src="assets\cruz_exit.png" alt="cruz"
+                                    style="pointer-events: none;">
+                            </button>
                         </div>
-                    </form>
-                </div>
-
-                <div>
-                    <h3>Formulario de Login</h3>
-                    <form id="formLogin" action="#" method="POST">
-                        <div>
-                            <label for="email2">Email:</label><br>
-                            <input type="email" id="email2" name="email2" placeholder="Introduce email..."><br>
-                            <label for="pass3">Password:</label><br>
-                            <input type="password" id="pass3" name="pass3" placeholder="Introduce password..."><br>
-                            <input type="submit" value="Enviar">
-                        </div>
-                    </form>
-
-                </div>
-                <div>
-                    <h3>Logout</h3>
-                    <div id="logout">
-                        <p id="message"></p>
-                        <button id="salir">Logout</button>
+                        <form id="formRegister" action="#" method="POST">
+                            <div>
+                                <input type="email" id="email" name="email" placeholder="Introduce email..."><br>
+                                <input type="password" id="pass" name="pass" placeholder="Introduce password..."><br>
+                                <input type="password" id="pass2" name="pass2" placeholder="Repite password..."><br><br>
+                                <input type="submit" value="Enviar">
+                            </div>
+                        </form>
                     </div>
+                </div>
 
+                <div id="divLogin-container" class="divPopup">
+                    <div id="divLogin" class="divInside">
+                        <div class="headExit">
+                            <h3 class="titleRegister">Formulario de Login</h3>
+                            <button id="btnExitLogin" class="btnExit">
+                                <img class="cruz_exit" src="assets\cruz_exit.png" alt="cruz"
+                                    style="pointer-events: none;">
+                            </button>
+                        </div>
+                        <form id="formLogin" action="#" method="POST">
+                            <div>
+                                <input type="email" id="email2" name="email2" placeholder="Introduce email..."><br>
+                                <input type="password" id="pass3" name="pass3" placeholder="Introduce password..."><br>
+                                <input type="submit" value="Enviar">
+                            </div>
+                        </form>
+                        <a href="#" id="linkRegister">Si aún no estás registrado, clika aquí</a>
+                    </div>
                 </div>
             </div>
         </section>
