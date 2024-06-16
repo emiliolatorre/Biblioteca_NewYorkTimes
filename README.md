@@ -12,6 +12,7 @@ Este proyecto consiste en la creación de una libreria por categorías nutrida p
 - ✔️ **Sistema de Favoritos:** guardado de libros favoritos en módulo Firestore de Firebase, y visualización dinámica.
 - ✔️ **Sistema de Imgen de Perfil:** guardado de imagen en el módulo Cloud Storage de Firebase y visualización dinámica.
 - ✔️ **Diseño minimalista y responsive:** basado en el estilo de New York Times, construido con flex y responsive.
+- ✔️ **Despliegue en Github Pages:** proyecto desplegado en el servicio Pages de GitHub.
 
 ## Assumptions
 
