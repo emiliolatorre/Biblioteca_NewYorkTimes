@@ -745,6 +745,7 @@ document.getElementById("formLogin").addEventListener("submit", function (event)
 });
 
 document.getElementById("salir").addEventListener("click", function (event) {
+    console.log('testing')
     signOut();
     titleLista.innerHTML = '';
     containerListas.innerHTML = '';
@@ -763,9 +764,11 @@ document.getElementById("salir").addEventListener("click", function (event) {
 // Listener de usuario en el sistema
 // Controlar usuario logado
 firebase.auth().onAuthStateChanged(function (user) {
+    const files = document.querySelector('#files');
+    const fotoPerfil = document.getElementById("fotoPerfil")
+
     if (user) {
         console.log(`Está en el sistema:${user.email} ${user.uid}`);
-        document.getElementById("message").innerText = `¡Bienvenido ${user.email}!`;
 
         btnFavPrint.style.display = 'flex'
 
@@ -773,13 +776,19 @@ firebase.auth().onAuthStateChanged(function (user) {
         btnRegister.style.display = 'none'
         btnLogin.style.display = 'none'
 
+        getFileUrl();
+        files.sytle.display = 'flex'
+        fotoPerfil.sytle.display = 'flex'
+
     } else {
         console.log("no hay usuarios en el sistema");
-        document.getElementById("message").innerText = ``;
 
         divLogout.style.display = 'none'
         btnRegister.style.display = 'block'
         btnLogin.style.display = 'block'
+
+        files.sytle.display = 'none'
+        fotoPerfil.sytle.display = 'none'
     }
 });
 
@@ -881,4 +890,62 @@ document.addEventListener('click', async (event) => {
     }
 });
 
-// END
+// ****** Cloud Storage ******
+
+//function to save file
+function uploadFile() {
+    const user = firebase.auth().currentUser;
+
+    if (user) {
+        // Get the UID of the authenticated user
+        const uid = user.uid;
+
+    // Created a Storage Reference with root dir
+    var storageRef = firebase.storage().ref();
+    console.log("storage ref", storageRef);
+    // Get the file from DOM
+    var file = document.getElementById("files").files[0];
+    console.log(file);
+
+    //dynamically set reference to the file name
+    var fixedFileName = 'foto_perfil.jpg';
+    var thisRef = storageRef.child(`images/${uid}/${fixedFileName}`);
+
+    //put request upload file to firebase storage
+    thisRef.put(file).then(function (snapshot) {
+        alert("File Uploaded")
+        console.log('Uploaded a blob or file!');
+    });
+}
+}
+
+// Return URL of a certain image
+function getFileUrl() {
+    const user = firebase.auth().currentUser;
+    if(user) {
+        const uid = user.uid
+    //create a storage reference
+    var storage = firebase.storage().ref();
+    var fixedFileName = 'foto_perfil.jpg';
+    var filePath = `images/${uid}/${fixedFileName}`;
+
+    //get file url
+    storage.child(filePath)
+        .getDownloadURL()
+        .then(function (url) {
+            console.log(url);
+            displayImage(url)
+        })
+        .catch(function (error) {
+            console.log("error encountered");
+        });
+    }
+}
+
+
+function displayImage(url) {
+    console.log(url);
+            const fotoPerfil = document.getElementById("fotoPerfil")
+            fotoPerfil.src = ''
+            fotoPerfil.src = `${url}`;
+    }
