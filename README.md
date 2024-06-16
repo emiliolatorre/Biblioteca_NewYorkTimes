@@ -21,7 +21,7 @@ Este proyecto consiste en la creación de una libreria por categorías nutrida p
 La landing page muestra todas las categorías de libros disponibles en tiempo real en la API New York Times. En la parte superior, el usuario puede filtrar las categorías por temporalidad de actualización, por fecha de última actualización, por fecha de actualización mas antigua, por orden alfabético o por selector de categorías.
 
 ### Vista de Libros
-Clickando en el boton READ MORE! en una categoría concreta, la vista cambia de forma dinámica mostrando los libros disponibles de esa categoría específico, mostrando asimismo los filtros para libros. Aquí el usuario puede filtrar por keywords de Título, de Autor y por orden alfabético de titulos. Los resultados se muestras paginados de cuatro en cuatro.
+Clickando en el boton READ MORE! en una categoría concreta, la vista cambia de forma dinámica mostrando los libros disponibles de esa categoría específica, mostrando asimismo los filtros para libros. Aquí el usuario puede filtrar por keywords de Título, Autor y por orden alfabético. Los resultados se muestras paginados de cuatro en cuatro.
 
 ### Login y Favoritos
 El usuario asimismo puede registrarse o logearse para guardar sus libros favoritos, quedando marcado así el icono de favorito al guardar un libro, y pudiendo ver todos sus favoritos desde el boton VER FAVORITOS. Un usuario no logeado no puede utlilizar esta funcionalidad.
