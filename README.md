@@ -1,5 +1,5 @@
 ![Header Image](assets/header3.png)
-# Proyecto de Biblioteca dinámica con API New York Times en JS
+# Proyecto de Biblioteca en JS con API New York Times
 ## Descripción
 
 Este proyecto consiste en la creación de una libreria por categorías nutrida por la [API de New York Times](https://developer.nytimes.com/{:target="_blank"}), construida de forma dinámica y con un sistema de autenticación y favoritos basado en Firebase. Proyecto [desplegado en Pages](https://emiliolatorre.github.io/JS_Biblioteca_NYTimes/).
