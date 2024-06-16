@@ -8,154 +8,187 @@ Este proyecto consiste en la creación de una libreria por categorías nutrida p
 
 - ✔️ **Fetch de la API New York Times:** identificar endpoints y fetch para traer datos de categorías y libros.
 - ✔️ **Construcción dinámica de la web:** tanto las categorías como sus respectivos libros.
+- ✔️ **Filtros de Categorías y Libros:** implementación de filtros de ordenación, selector múltiple y búsqueda.
 - ✔️ **Sistema de Autenticación de usuarios:** implementación de login con email basado en módulo Auth de Firebase.
 - ✔️ **Sistema de Favoritos:** guardado de libros favoritos en módulo Firestore de Firebase, y visualización dinámica.
-- ✔️ **Sistema de Imgen de Perfil:** guardado de imagen en el módulo Cloud Storage de Firebase y visualización dinámica.
+- ✔️ **Sistema de Imagen de Perfil:** guardado de imagen en el módulo Cloud Storage de Firebase y visualización dinámica.
 - ✔️ **Diseño minimalista y responsive:** basado en el estilo de New York Times, construido con flex y responsive.
+- ✔️ **Paginación:** paginación implementada en la vista de libros.
 - ✔️ **Despliegue en Github Pages:** proyecto desplegado en el servicio Pages de GitHub.
 
-## Assumptions
+## Uso de la Web
+La landing page muestra todas las categorías de libros disponibles en tiempo real en la API New York Times. En la parte superior, el usuario puede filtrar las categorías por temporalidad de actualización, por fecha de última actualización, por fecha de actualización mas antigua, por orden alfabético o por selector de categorías.
 
-- Los alumnos pueden cursar diferentes bootcamps en diferentes promociones y modalidades; no al mismo tiempo.
-- Los docentes pueden impartir el mismo bootcamp en diferentes promociones y modalidades.
-- La modalidad de los alumnos se deja por completar ya que no se nos ha proporcionado el dato. Interesante para escalabilidad.
-- Las docentes Rosalva Ayuso y Angelica Corral estan asociadas a programas sin alumnos, y por tanto sin promocion asociada; no los incluimos hasta tener los datos completos.
+Clickando en el boton READ MORE! en una categoría concreta, la vista cambia de forma dinámica mostrando los libros disponibles de esa categoría específico, mostrando asimismo los filtros para libros. Aquí el usuario puede filtrar por keywords de Título, de Autor y por orden alfabético de titulos. Los resultados se muestras paginados de cuatro en cuatro.
 
-## Modelo Entidad-Relación (E/R)
+El usuario asimismo puede registrarse o logearse para guardar sus libros favoritos, quedando marcado así el icono de favorito al guardar un libro, y pudiendo ver todos sus favoritos desde el boton VER FAVORITOS. Un usuario no logeado no puede utlilizar esta funcionalidad.
 
-![assets/Modelo_Entidad_Relacion.png](assets/Modelo_Entidad_Relacion.png)
+Finalmente, el usuario logeado puede subir una foto de perfil que se mostrará en la esquina superior derecha.
 
-## Modelo Lógico de la Base de Datos
+## Scritp: principales funcionalidades
+### Vista dinámica de Categorías (Books similar)
+Utilización de async / await para traer el json de las categorías, y print dinámico
 
-![assets/Modelo_Logico.png](assets/Modelo_Logico.png)
+```javascript
+const getIndex = async (url) => {
+    try {
+        loaderOn();
+        const resp = await fetch(url);
+        if (resp.ok) {
+            const resultado = await resp.json();
+            return resultado
+        } else {
+            throw 'El estado o el stage no son correctos.'
+        }
+    } catch (error) {
+        throw error
+    } finally {
+        loaderOff();
+    }
+};
 
-## Estructura de la Base de Datos
-
-La base de datos está compuesta por las siguientes tablas:
-
-- **alumnos**: Almacena información sobre los alumnos.
-- **docentes**: Almacena información sobre los docentes.
-- **programa_alumnos**: Relaciona los alumnos con los programas en los que están inscritos.
-- **programa_docentes**: Relaciona los docentes con los programas en los que enseñan.
-- **programas**: Almacena información sobre los programas académicos.
-- **promociones**: Almacena información sobre las promociones de los programas.
-- **notas**: Almacena las notas de los alumnos en los distintos programas.
-
-## Descripción de las Tablas
-
-### alumnos
-
-- **alumnoid**: Identificador único del alumno (integer).
-- **nombre**: Nombre del alumno (text).
-- **email**: Dirección de correo electrónico del alumno (text).
-
-### docentes
-
-- **docenteid**: Identificador único del docente (integer).
-- **nombre**: Nombre del docente (text).
-- **rol**: Rol del docente en la institución (text).
-
-### programa_alumnos
-
-- **programaal_id**: Identificador único de cada programa cursado por cada alumno (integer).
-- **alumnoid**: Identificador del alumno (integer).
-- **programaid**: Identificador del programa (integer).
-- **modalidad**: Modalidad del programa (text).
-
-### programa_docentes
-
-- **programado_id**: Identificador único de cada programa cursado por cada docente (integer).
-- **docenteid**: Identificador del docente (integer).
-- **programaid**: Identificador del programa (integer).
-- **modalidad**: Modalidad del programa (text).
-
-### programas
-
-- **programaid**: Identificador único del programa [vertical - sede - promocion] (integer).
-- **vertical**: Identificador del área vertical del programa (text).
-- **promocionid**: Identificador de la promoción del programa (integer).
-- **sede**: Sede del programa (text).
-
-### promociones
-
-- **promocionid**: Identificador único de la promoción (integer).
-- **mes**: Mes de inicio de la promoción (text).
-- **fechainicio**: Fecha de inicio de la promoción (text).
-
-### notas
-
-- **programaal_id**: Identificador de la relación programa-alumno (integer).
-- **proyecto 1 - 9**: nota de cada proyecto (Apto / No Apto / Null) (text).
-- **nombre**: nombre completo del alumno (text).
-  
-
-## Queries test
-#### Consultar todas las notas de cada alumno (ordenado por vertical y nombre):
-```sql
-SELECT al.alumnoid, al.nombre, pr.vertical, n.proyecto_hlf, n.proyecto_eda, n.proyecto_bbdd, n.proyecto_deployment,
-n.proyecto_webdev, n.proyecto_frontend, n.proyecto_backend, n.proyecto_react, n.proyecto_fullstack
-FROM alumnos al
-INNER JOIN programa_alumnos pral ON pral.alumnoid = al.alumnoid
-INNER JOIN programas pr ON pr.programaid = pral.programaid
-INNER JOIN notas n ON n.programaal_id = pral.programaal_id
-ORDER BY pr.vertical, al.nombre
+getIndex(`${urlIndex}`)
+    .then((resp) => {
+        const indexArray = resp.results
+        printIndex(indexArray)
+        printHeadCategory(indexArray)
+    })
+    .catch((error) => { console.error(error) })
 ```
 
-#### Consultar las notas de un Data Science:
-```sql
-SELECT al.alumnoid, al.nombre, pr.vertical, n.proyecto_hlf, n.proyecto_eda, n.proyecto_bbdd, n.proyecto_deployment
-FROM alumnos al
-INNER JOIN programa_alumnos pral ON pral.alumnoid = al.alumnoid
-INNER JOIN programas pr ON pr.programaid = pral.programaid
-INNER JOIN notas n ON n.programaal_id = pral.programaal_id
-WHERE pr.vertical = 'Data Science'
+### Filtros para vistas de categorías y libros
+
+```javascript
+// Event Index - Filter weekly/monthly
+selectUpdated.addEventListener('change', (event) => {...}
+
+// Event Index - Filter Oldest
+selectOldest.addEventListener('change', (event) => {...}
+
+// Event Index - Filter Newest
+selectNewest.addEventListener('change', (event) => {...}
+
+// Event Index - Filter AZ
+selectAZ.addEventListener('change', (event) => {...}
+
+// Event Index - Filter Categories
+formCategories.addEventListener('submit', (event) => {...}
+
+// Event Books - Filter Title
+formTitulo.addEventListener('submit', (event) => {...}
+
+// Event Book - Filter Author
+formAutor.addEventListener('submit', (event) => {...}
+
+// Event Books - Filter AZ
+selectAZAutor.addEventListener('change', (event) => {...}
+
 ```
 
-#### Consultar la vertical que imparte cada docente:
-```sql
-SELECT d.docenteid, d.nombre, d.rol, pro.vertical
-FROM docentes d
-INNER JOIN programa_docentes prd ON prd.docenteid = d.docenteid
-INNER JOIN programas pro ON pro.programaid = prd.programaid
-INNER JOIN promociones pr ON pr.promocionid = pro.promocionid
+### Firebase Configuration
+
+```javascript
+const firebaseConfig = {
+    apiKey: "<your-api-key>",
+    authDomain: "js-biblioteca-nytimes.firebaseapp.com",
+    projectId: "js-biblioteca-nytimes",
+    storageBucket: "js-biblioteca-nytimes.appspot.com",
+    messagingSenderId: "560392236769",
+    appId: "1:560392236769:web:00d575e7a78ba0844b51a0"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore(); // Initialize Firestore
+const auth = firebase.auth(); // Initialize Authentication
 ```
 
-#### Consultar todos los docentes que imparten una vertical específica:
-```sql
-SELECT d.docenteid, d.nombre, d.rol, pro.vertical
-FROM docentes d
-INNER JOIN programa_docentes prd ON prd.docenteid = d.docenteid
-INNER JOIN programas pro ON pro.programaid = prd.programaid
-INNER JOIN promociones pr ON pr.promocionid = pro.promocionid
-WHERE pro.vertical = 'Full Stack'
+
+### Firebase Authentication - Registro / Login
+Implementación del modulo Auth para crear usuarios y logearse.
+
+```javascript
+const createUser = (user) => {
+    db.collection("users")
+        .add(user)
+        .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => console.error("Error adding document: ", error));
+};
+
+const signUpUser = (email, password) => {
+    firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in
+            let user = userCredential.user;
+            console.log(`se ha registrado ${user.email} ID:${user.uid}`)
+            // Saves user in firestore
+            createUser({
+                id: user.uid,
+                email: user.email
+            });
+            divRegisterContainer.classList.remove('show')
+
+        })
+        .catch((error) => {
+            console.log("Error en el sistema" + error.message, "Error: " + error.code);
+        });
+};
+
+// Listener de usuario en el sistema
+firebase.auth().onAuthStateChanged(function (user) {
 ```
 
-#### Consultar todos los docentes que tienen un rol específico:
-```sql
-SELECT d.docenteid, d.nombre, d.rol, pro.vertical
-FROM docentes d
-INNER JOIN programa_docentes prd ON prd.docenteid = d.docenteid
-INNER JOIN programas pro ON pro.programaid = prd.programaid
-INNER JOIN promociones pr ON pr.promocionid = pro.promocionid
-WHERE d.rol = 'TA'
+### Firebase Firestore - guardado de Libros Favoritos
+Implementación del modulo Firestore y diseño de modelo de datos para guardar favoritos.
+```javascript
+const addBookFav = (uid, bookData) => {
+    db.collection("users").where("id", "==", uid)
+        .get()
+        .then((docs) => {
+            docs.forEach(async (doc) => {
+                const docId = doc.id;
+                const userRef = db.collection('users').doc(docId);
+
+                await userRef.update({ favourites: firebase.firestore.FieldValue.arrayUnion(bookData) })
+                    .then(() => {
+                        alert('Libro guardado en Favoritos.')
+                    })
+                    .catch((error) => {
+                        throw `Error agregando el libro a favoritos: ${error}`;
+                    });
+            });
+        })
+        .catch((error) => {
+            alert(error);
+        });
+};
+
 ```
 
-#### Consultar a qué promoción está apuntado cada alumno y en qué día empezó:
-```sql
-SELECT al.alumnoid, al.nombre, pr.mes, pr.fechainicio
-FROM alumnos al
-INNER JOIN programa_alumnos pral ON pral.alumnoid = al.alumnoid
-INNER JOIN programas pro ON pro.programaid = pral.programaid
-INNER JOIN promociones pr ON pr.promocionid = pro.promocionid
-```
+### Firebase Cloud Storage - Foto de Perfil
+Implementación del modulo Cloud Storage para almacenar cada user su foto de Perfil.
+```javascript
+function uploadFile() {
+    const user = firebase.auth().currentUser;
 
-#### Consultar cuantos alumnos le corresponde a cada docente:
-```sql
-SELECT DISTINCT doc.docenteid AS "DocenteID", doc.nombre AS "NombreProfesor", count(al.alumnoid) AS "AlumnosPorDocente"
-FROM alumnos al
-INNER JOIN programa_alumnos pral ON pral.alumnoid = al.alumnoid
-INNER JOIN programas pro ON pro.programaid = pral.programaid
-INNER JOIN programa_docentes prd ON prd.programaid = pro.programaid
-INNER JOIN docentes doc ON doc.docenteid = prd.docenteid
-GROUP BY  doc.docenteid, doc.nombre
+    if (user) {
+        const uid = user.uid;
+
+    var storageRef = firebase.storage().ref();
+    console.log("storage ref", storageRef);
+    var file = document.getElementById("files").files[0];
+    console.log(file);
+
+    var fixedFileName = 'foto_perfil.jpg';
+    var thisRef = storageRef.child(`images/${uid}/${fixedFileName}`);
+
+    thisRef.put(file).then(function (snapshot) {
+        alert("File Uploaded")
+        console.log('Uploaded a blob or file!');
+    });
+}
+}
 ```
