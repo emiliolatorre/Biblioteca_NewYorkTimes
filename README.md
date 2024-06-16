@@ -1,4 +1,4 @@
-![Header Image](assets/header.jpg)
+![Header Image](assets/header.png)
 # JS_Biblioteca_NYTimes
 
 ## Descripción
