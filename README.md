@@ -1,4 +1,4 @@
-![Header Image](assets/header2.png)
+![Header Image](assets/header3.png)
 # Proyecto de Biblioteca dinámica con API New York Times en JS
 ## Descripción
 
