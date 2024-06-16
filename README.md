@@ -9,9 +9,9 @@ Este proyecto consiste en la creación de una libreria por categorías nutrida p
 - ✔️ **Fetch de la API New York Times:** identificar endpoints y fetch para traer datos de categorías y libros.
 - ✔️ **Construcción dinámica de la web:** tanto las categorías como sus respectivos libros.
 - ✔️ **Filtros de Categorías y Libros:** implementación de filtros de ordenación, selector múltiple y búsqueda.
-- ✔️ **Sistema de Autenticación de usuarios:** implementación de login con email basado en módulo Auth de Firebase.
+- ✔️ **Sistema de Autenticación de usuarios:** implementación de login basado en módulo Auth de Firebase.
 - ✔️ **Sistema de Favoritos:** guardado de libros favoritos en módulo Firestore de Firebase, y visualización dinámica.
-- ✔️ **Sistema de Imagen de Perfil:** guardado de imagen en el módulo Cloud Storage de Firebase y visualización dinámica.
+- ✔️ **Sistema de Imagen de Perfil:** guardado de imagen en el módulo Cloud Storage de Firebase y visualización.
 - ✔️ **Diseño minimalista y responsive:** basado en el estilo de New York Times, construido con flex y responsive.
 - ✔️ **Paginación:** paginación implementada en la vista de libros.
 - ✔️ **Despliegue en Github Pages:** proyecto desplegado en el servicio Pages de GitHub.
