@@ -3,7 +3,7 @@
 ## Descripción
 
 Este proyecto consiste en la creación de una libreria por categorías nutrida por la [API de New York Times](https://developer.nytimes.com/{:target="_blank"}), construida de forma dinámica y con un sistema de autenticación y favoritos basado en Firebase. Proyecto [desplegado en Pages](https://emiliolatorre.github.io/JS_Biblioteca_NYTimes/{:target="_blank"}).
-<a href="https://emiliolatorre.github.io/JS_Biblioteca_NYTime" target="_blank">desplegado en Pages</a>
+<a href="https://emiliolatorre.github.io/JS_Biblioteca_NYTimes/" target="_blank">desplegado en Pages</a>
 
 ## Objetivos
 
