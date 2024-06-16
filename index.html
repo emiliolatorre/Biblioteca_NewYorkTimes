@@ -1,951 +1,177 @@
-//**** FIREBASE_Firestore_Auth ****
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyA9hBu4RiD1Mway_n7S2N7q9wu6ffHAJEs",
-    authDomain: "js-biblioteca-nytimes.firebaseapp.com",
-    projectId: "js-biblioteca-nytimes",
-    storageBucket: "js-biblioteca-nytimes.appspot.com",
-    messagingSenderId: "560392236769",
-    appId: "1:560392236769:web:00d575e7a78ba0844b51a0"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);// Inicializaar app Firebase
-const db = firebase.firestore();// db representa mi BBDD //inicia Firestore
-const auth = firebase.auth();
-
-//**** CONSTANTS ****
-
-// API NYTimes
-const apiKey = '6M27vjBFvWMv2cJNyYVuFobzfRm0quel'
-const urlIndex = `https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`
-
-const containerListas = document.querySelector('#containerListas');
-const fragment = document.createDocumentFragment();
-const titleLista = document.querySelector('#titleLista');
-const btnAtras = document.querySelector('#btnAtras');
-const btnAtrasBooks = document.querySelector('#btnAtrasBooks');
-const selectUpdated = document.querySelector('#updated');
-const selectOldest = document.querySelector('#oldest');
-const selectNewest = document.querySelector('#newest');
-const selectAZ = document.querySelector('#az');
-const formCategories = document.querySelector('#formCategories');
-const selectCategories = document.querySelector('#selectCategories');
-const loader = document.querySelector('#loader');
-const sectionFiltrosIndex = document.querySelector('#sectionFiltrosIndex');
-const sectionFiltrosBooks = document.querySelector('#sectionFiltrosBooks');
-const formTitulo = document.querySelector('#formTitulo');
-const formAutor = document.querySelector('#formAutor');
-const selectAZAutor = document.querySelector('#azAutor');
-const btnFavPrint = document.querySelector('#btnFavPrint');
-const divRegister = document.querySelector('#divRegister');
-const divLogin = document.querySelector('#divLogin');
-const divLogout = document.querySelector('#divLogout');
-const btnExit = document.querySelector('.exit');
-const btnRegister = document.querySelector('#btnRegister');
-const btnLogin = document.querySelector('#btnLogin');
-const divRegisterContainer = document.querySelector('#divRegister-container');
-const divLoginContainer = document.querySelector('#divLogin-container');
-
-const divPage = document.querySelector('#divPage');
-const btnPageBack = document.querySelector('#pageBack');
-const btnPageNext = document.querySelector('#pageNext');
-const pageInfo = document.querySelector('#pageInfo');
-
-sectionFiltrosBooks.style.display = 'none';
-
-// constantes paginación
-let arrayFavs = [];
-let currentPage = 1;
-const booksPerPage = 4;
-let dbBooks = [];
-
-
-//****** EVENTS ******
-
-// Events Delegation - Buttons
-document.addEventListener('click', (event) => {
-    if (event.target.matches('.btnLista')) {
-        sectionFiltrosIndex.style.display = 'none';
-        sectionFiltrosBooks.style.display = 'flex';
-        containerListas.innerHTML = '';
-        const lista = event.target.id;
-        const listaArray = lista.split(' ');
-        const listaGuiones = listaArray.join('-');
-        urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
-        getBooks(urlBooks)
-            .then((resp) => {
-                const booksArray = resp.results;
-                printBooks(booksArray);
-            })
-            .catch((error) => { console.error(error) })
-
-        formTitulo.style.display = 'flex';
-        formAutor.style.display = 'flex';
-        selectAZAutor.style.display = 'flex';
-    }
-
-    if (event.target.matches('#btnAtras')) {
-        titleLista.innerHTML = '';
-        containerListas.innerHTML = '';
-        sectionFiltrosIndex.style.display = 'flex';
-        sectionFiltrosBooks.style.display = 'none';
-        currentPage = 1;
-        divPage.style.display = 'none'
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const indexArray = resp.results
-                printIndex(indexArray)
-            })
-            .catch((error) => { console.error(error) })
-    }
-
-    if (event.target.matches('#btnAtrasBooks')) {
-        const lista = titleLista.textContent;
-        titleLista.innerHTML = '';
-        containerListas.innerHTML = '';
-        currentPage = 1;
-
-        const listaArray = lista.split(' ');
-        const listaGuiones = listaArray.join('-');
-        urlBooks = `https://api.nytimes.com/svc/books/v3/lists/${listaGuiones}.json?api-key=6M27vjBFvWMv2cJNyYVuFobzfRm0quel`;
-        getBooks(urlBooks)
-            .then((resp) => {
-                const booksArray = resp.results;
-                printBooks(booksArray);
-            })
-            .catch((error) => { console.error(error) })
-
-        formTitulo.style.display = 'flex';
-        formAutor.style.display = 'flex';
-        selectAZAutor.style.display = 'flex';
-
-        btnAtrasBooks.style.display = 'none';
-        btnAtras.style.display = 'flex';
-    }
-
-    if (event.target.matches('.btnBuy')) {
-        const amazonURL = event.target.id;
-        window.open(amazonURL, '_blank');
-    }
-
-    if (event.target.matches('#btnFooter')) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    if (event.target.matches('#btnRegister')) {
-        divRegisterContainer.classList.add('show');
-    }
-
-    if (event.target.matches('#btnExitRegister')) {
-        divRegisterContainer.classList.remove('show')
-    }
-
-    if (event.target.matches('#btnLogin')) {
-        divLoginContainer.classList.add('show');
-    }
-
-    if (event.target.matches('#btnExitLogin')) {
-        divLoginContainer.classList.remove('show')
-    }
-
-    if (event.target.matches('#linkRegister')) {
-        divLoginContainer.classList.remove('show');
-        divRegisterContainer.classList.add('show');
-    }
-});
-
-// Event Index - Filter weekly/monthly
-selectUpdated.addEventListener('change', (event) => {
-    if (event.target.value === 'Todas') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const indexArray = resp.results
-                printIndex(indexArray)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Monthly') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoMonthly = arrayResultado.filter(element => element.updated === 'MONTHLY')
-                printIndex(resultadoMonthly)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Weekly') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoMonthly = arrayResultado.filter(element => element.updated === 'WEEKLY')
-                printIndex(resultadoMonthly)
-            })
-            .catch((error) => { console.error(error) })
-    }
-    selectOldest.value = 'Todas'
-    selectNewest.value = 'Todas'
-    selectAZ.value = 'Todas'
-    selectCategories.value = 'Todas'
-});
-
-// Event Index - Filter Oldest
-selectOldest.addEventListener('change', (event) => {
-    if (event.target.value === 'Todas') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const indexArray = resp.results
-                printIndex(indexArray)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Ascendente') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoAscendente = arrayResultado.sort((a, b) => new Date(a.oldest_published_date) - new Date(b.oldest_published_date));
-                printIndex(resultadoAscendente)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Descendente') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoDescendente = arrayResultado.sort((a, b) => new Date(b.oldest_published_date) - new Date(a.oldest_published_date));
-                printIndex(resultadoDescendente)
-            })
-            .catch((error) => { console.error(error) })
-    }
-    selectUpdated.value = 'Todas'
-    selectNewest.value = 'Todas'
-    selectAZ.value = 'Todas'
-    selectCategories.value = 'Todas'
-});
-
-// Event Index - Filter Newest
-selectNewest.addEventListener('change', (event) => {
-    if (event.target.value === 'Todas') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const indexArray = resp.results
-                printIndex(indexArray)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Ascendente') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoAscendente = arrayResultado.sort((a, b) => new Date(a.newest_published_date) - new Date(b.newest_published_date));
-                printIndex(resultadoAscendente)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'Descendente') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoDescendente = arrayResultado.sort((a, b) => new Date(b.newest_published_date) - new Date(a.newest_published_date));
-                printIndex(resultadoDescendente)
-            })
-            .catch((error) => { console.error(error) })
-    }
-    selectUpdated.value = 'Todas'
-    selectOldest.value = 'Todas'
-    selectAZ.value = 'Todas'
-    selectCategories.value = 'Todas'
-});
-
-// Event Index - Filter AZ
-selectAZ.addEventListener('change', (event) => {
-    if (event.target.value === 'Todas') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const indexArray = resp.results
-                printIndex(indexArray)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'AZ') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoAZ = arrayResultado.sort((a, b) => a.list_name.localeCompare(b.list_name));
-                printIndex(resultadoAZ)
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'ZA') {
-        containerListas.innerHTML = '';
-        getIndex(`${urlIndex}`)
-            .then((resp) => {
-                const arrayResultado = resp.results
-                const resultadoZA = arrayResultado.sort((a, b) => b.list_name.localeCompare(a.list_name));
-                printIndex(resultadoZA)
-            })
-            .catch((error) => { console.error(error) })
-    }
-    selectUpdated.value = 'Todas'
-    selectOldest.value = 'Todas'
-    selectNewest.value = 'Todas'
-    selectCategories.value = 'Todas'
-});
-
-// Event Index - Filter Categories
-formCategories.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const select = document.querySelector('#selectCategories');
-    const selectedOptions = Array.from(select.selectedOptions);
-    const values = selectedOptions.map(option => option.value);
-    containerListas.innerHTML = '';
-
-    getIndex(`${urlIndex}`)
-        .then((resp) => {
-            const arrayResultado = resp.results;
-            if (values.includes('Todas')) {
-                printIndex(arrayResultado)
-            } else {
-                const resultadoCategories = arrayResultado.filter(element => values.includes(element.list_name));
-                printIndex(resultadoCategories)
-            }
-        })
-        .catch((error) => { console.error(error) })
-
-    selectUpdated.value = 'Todas'
-    selectOldest.value = 'Todas'
-    selectNewest.value = 'Todas'
-    selectAZ.value = 'Todas'
-});
-
-// Event Books - Filter Title
-formTitulo.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const inputTitulo = [formTitulo.titulo.value.toUpperCase()];
-    getBooks(urlBooks)
-        .then((resp) => {
-            const resultsArray = resp.results;
-            const booksArray = resultsArray.books;
-            const matchTitulo = booksArray.filter(element => element.title.includes(inputTitulo));
-            printBooksFiltered(matchTitulo);
-        })
-        .catch((error) => { console.error(error) })
-    formAutor.reset();
-    btnAtrasBooks.style.display = 'none';
-    btnAtras.style.display = 'flex';
-});
-
-// Event Book - Filter Author
-formAutor.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const inputAutor = [formAutor.autor.value];
-    getBooks(urlBooks)
-        .then((resp) => {
-            const resultsArray = resp.results;
-            const booksArray = resultsArray.books;
-            const matchTitulo = booksArray.filter(element => element.author.includes(inputAutor));
-            printBooksFiltered(matchTitulo);
-        })
-        .catch((error) => { console.error(error) })
-    formTitulo.reset();
-    btnAtrasBooks.style.display = 'none';
-    btnAtras.style.display = 'flex';
-});
-
-// Event Books - Filter AZ
-selectAZAutor.addEventListener('change', (event) => {
-    if (event.target.value === 'Todas') {
-        containerListas.innerHTML = '';
-        getBooks(urlBooks)
-            .then((resp) => {
-                const arrayResultados = resp.results;
-                const BooksArray = arrayResultados.books;
-                printBooksFiltered(BooksArray);
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'AZ') {
-        containerListas.innerHTML = '';
-        getBooks(urlBooks)
-            .then((resp) => {
-                const arrayResultados = resp.results;
-                const BooksArray = arrayResultados.books;
-                const resultadoAZ = BooksArray.sort((a, b) => a.author.localeCompare(b.author));
-                printBooksFiltered(resultadoAZ);
-            })
-            .catch((error) => { console.error(error) })
-    } else if (event.target.value === 'ZA') {
-        containerListas.innerHTML = '';
-        getBooks(urlBooks)
-            .then((resp) => {
-                const arrayResultados = resp.results;
-                const BooksArray = arrayResultados.books;
-                const resultadoZA = BooksArray.sort((a, b) => b.author.localeCompare(a.author));
-                printBooksFiltered(resultadoZA);
-            })
-            .catch((error) => { console.error(error) })
-    }
-    btnAtrasBooks.style.display = 'none';
-    btnAtras.style.display = 'flex';
-});
-
-
-//****** FUNCTIONS ******
-
-// Loader
-const loaderOn = () => loader.style.display = 'flex';
-const loaderOff = () => loader.style.display = 'none';
-
-// INDEX
-
-const getIndex = async (url) => {
-    try {
-        loaderOn();
-        const resp = await fetch(url);
-        if (resp.ok) {
-            const resultado = await resp.json();
-            return resultado
-        } else {
-            throw 'El estado o el stage no son correctos.'
-        }
-    } catch (error) {
-        throw error
-    } finally {
-        loaderOff();
-    }
-};
-
-getIndex(`${urlIndex}`)
-    .then((resp) => {
-        const indexArray = resp.results
-        printIndex(indexArray)
-        printHeadCategory(indexArray)
-    })
-    .catch((error) => { console.error(error) })
-
-const printIndex = (array) => {
-    array.forEach(({ list_name, newest_published_date, oldest_published_date, updated }) => {
-        const divLista = document.createElement('div');
-        divLista.classList.add('cardListas');
-
-        const nameLista = document.createElement('h2');
-        nameLista.innerHTML = list_name;
-        nameLista.classList.add('nameLista');
-        const divisor = document.createElement('hr');
-        divisor.classList.add('divisor');
-
-        const dateOld = document.createElement('p');
-        dateOld.innerHTML = `Oldest: ${oldest_published_date}`
-
-        const dateNew = document.createElement('p');
-        dateNew.innerHTML = `Newest: ${newest_published_date}`
-
-        const update = document.createElement('p');
-        update.innerHTML = `Updated: ${updated}`
-
-        const btn = document.createElement('button')
-        btn.innerHTML = `READ MORE!<img id="flecha_triangulo_derecha" src="assets/flecha_triangulo_derecha.png" alt="Icono flecha derecha">`
-        btn.id = list_name;
-        btn.classList.add('btnLista');
-
-        divLista.append(nameLista, divisor, dateOld, dateNew, update, btn)
-        fragment.append(divLista)
-    })
-    containerListas.append(fragment)
-};
-
-// BOOKS
-
-const printHeadCategory = (array) => {
-    array.forEach(({ list_name }) => {
-        const option = document.createElement('option');
-        option.value = list_name;
-        option.innerHTML = list_name
-        fragment.append(option);
-    })
-    selectCategories.append(fragment);
-};
-
-const getBooks = async (url) => {
-    try {
-        loaderOn();
-        const resp = await fetch(url);
-        if (resp.ok) {
-            const resultado = await resp.json();
-            return resultado;
-        } else {
-            throw 'El estado o el stage no son correctos.'
-        }
-    } catch (error) {
-        throw error
-    } finally {
-        loaderOff();
-    }
-};
-
-// PAGINACION
-
-const nextPage = () => {
-    currentPage = currentPage + 1;
-    printBooksFiltered(dbBooks);
-};
-
-const prevPage = () => {
-    currentPage = currentPage - 1;
-    printBooksFiltered(dbBooks);
-};
-
-function getBooksSlice(pagina = 1) {
-    const sliceInitial = (currentPage - 1) * booksPerPage;
-    const sliceFinal = sliceInitial + booksPerPage;
-    return dbBooks.slice(sliceInitial, sliceFinal);
-};
-
-const getTotalPages = () => {
-    return Math.ceil(dbBooks.length / booksPerPage);
-};
-
-function pagesButtons() {
-    // Comprobar que no se pueda retroceder
-    if (currentPage === 1) {
-        btnPageBack.setAttribute("disabled", true);
-    } else {
-        btnPageBack.removeAttribute("disabled");
-    }
-    // Comprobar que no se pueda avanzar
-    if (currentPage === getTotalPages()) {
-        btnPageNext.setAttribute("disabled", true);
-    } else {
-        btnPageNext.removeAttribute("disabled");
-    }
-};
-
-// Events btns Paginación
-btnPageBack.addEventListener("click", prevPage);
-btnPageNext.addEventListener("click", nextPage);
-
-// PRINT
-
-const loadFavs = async () => {
-    const user = firebase.auth().currentUser;
-    arrayFavs = [];
-
-    try {
-        const querySnapshot = await db.collection("users").where("id", "==", user.uid).get();
-        querySnapshot.forEach((doc) => {
-            const objFav = doc.data().favourites;
-            arrayFavs.push(objFav);
-        });
-    } catch (error) {
-        console.error("Error getting favorites:", error);
-    }
-};
-
-const printBooks = async (array) => {
-    await loadFavs();
-    const arrayBooks = array.books
-    dbBooks = arrayBooks
-    const booksSlice = getBooksSlice(currentPage)
-    pagesButtons();
-    pageInfo.textContent = `${currentPage} / ${getTotalPages()}`;
-    divPage.style.display = 'flex';
-
-    booksSlice.forEach((elemento) => {
-        const { book_image, weeks_on_list, description, rank, title, amazon_product_url } = elemento;
-        const divBook = document.createElement('div');
-        divBook.classList.add('cardBooks');
-
-        const imgBook = document.createElement('img');
-        imgBook.src = `${book_image}`;
-
-        const weeks = document.createElement('p');
-        weeks.innerHTML = `Weeks on List: ${weeks_on_list}`;
-        weeks.classList.add('weeks');
-
-        const descriptionBook = document.createElement('p');
-        descriptionBook.innerHTML = description;
-        descriptionBook.classList.add('descriptionBook');
-
-        const rankTitle = document.createElement('h2');
-        rankTitle.innerHTML = `#${rank} ${title}`
-
-        const btn = document.createElement('button');
-        btn.innerHTML = `BUY AT AMAZON<img id="flecha_derecha" src="assets/flecha_derecha.png" alt="Icono flecha derecha">`;
-        btn.classList.add('btnBuy')
-        btn.id = amazon_product_url
-
-        const btnFav = document.createElement('button')
-        btnFav.innerHTML = `<img class="corazon_favorito" src="assets/favorito.png" alt="Icono corazón favorito" style="pointer-events: none;">`;
-        btnFav.id = `{"book_image": "${book_image}", "weeks_on_list": "${weeks_on_list}", "description": "${description}", "rank": "${rank}", "title": "${title}", "amazon_product_url": "${amazon_product_url}"}`;
-
-        // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
-        const stringjson = JSON.stringify(arrayFavs);
-        const found = stringjson.includes(title)
-
-        if (found) {
-            btnFav.classList.add('btnFav2');
-            btnFav.querySelector('img').src = 'assets/favorito2.png';
-        } else {
-            btnFav.classList.add('btnFav');
-            btnFav.querySelector('img').src = 'assets/favorito.png';
-        }
-
-        const divBtns = document.createElement('div');
-        divBtns.classList.add('divBtns');
-
-        divBtns.append(btn, btnFav)
-        divBook.append(rankTitle, imgBook, weeks, descriptionBook, divBtns);
-        fragment.append(divBook);
-    })
-    const lista = document.createElement('h1');
-    lista.innerHTML = array.list_name
-    lista.id = 'h1Lista'
-    titleLista.append(lista)
-    containerListas.append(fragment);
-};
-
-const printBooksFiltered = async (array) => {
-    await loadFavs();
-    dbBooks = array
-    const booksSlice = getBooksSlice(currentPage)
-    pagesButtons();
-    pageInfo.textContent = `${currentPage} / ${getTotalPages()}`;
-    divPage.style.display = 'flex';
-
-    booksSlice.forEach(({ book_image, weeks_on_list, description, rank, title, amazon_product_url }) => {
-        const divBook = document.createElement('div');
-        divBook.classList.add('cardBooks');
-
-        const imgBook = document.createElement('img');
-        imgBook.src = `${book_image}`;
-
-        const weeks = document.createElement('p');
-        weeks.innerHTML = `Weeks on List: ${weeks_on_list}`;
-        weeks.classList.add('weeks');
-
-        const descriptionBook = document.createElement('p');
-        descriptionBook.innerHTML = description;
-        descriptionBook.classList.add('descriptionBook');
-
-        const rankTitle = document.createElement('h2');
-        rankTitle.innerHTML = `#${rank} ${title}`
-
-        const btn = document.createElement('button');
-        btn.innerHTML = `BUY AT AMAZON<img id="flecha_derecha" src="assets/flecha_derecha.png" alt="Icono flecha derecha">`;
-        btn.classList.add('btnBuy')
-        btn.id = amazon_product_url
-
-        const btnFav = document.createElement('button')
-        btnFav.innerHTML = `<img class="corazon_favorito" src="assets/favorito.png" alt="Icono corazón favorito" style="pointer-events: none;">`;
-        btnFav.id = `{"book_image": "${book_image}", "weeks_on_list": "${weeks_on_list}", "description": "${description}", "rank": "${rank}", "title": "${title}", "amazon_product_url": "${amazon_product_url}"}`;
-
-        // comprobar si el Book ya esta en favoritos para cambiar la clase del boton
-        const stringjson = JSON.stringify(arrayFavs);
-        const found = stringjson.includes(title)
-
-        if (found) {
-            btnFav.classList.add('btnFav2');
-            btnFav.querySelector('img').src = 'assets/favorito2.png';
-        } else {
-            btnFav.classList.add('btnFav');
-            btnFav.querySelector('img').src = 'assets/favorito.png';
-        }
-
-        const divBtns = document.createElement('div');
-        divBtns.classList.add('divBtns');
-
-        divBtns.append(btn, btnFav)
-        divBook.append(rankTitle, imgBook, weeks, descriptionBook, divBtns);
-        fragment.append(divBook);
-    })
-    containerListas.innerHTML = ''
-    containerListas.append(fragment);
-};
-
-
-//****** AUTHENTICATION ******
-
-const createUser = (user) => {
-    db.collection("users")
-        .add(user)
-        .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id);
-        })
-        .catch((error) => console.error("Error adding document: ", error));
-};
-
-const signUpUser = (email, password) => {
-    firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            // Signed in
-            let user = userCredential.user;
-            console.log(`se ha registrado ${user.email} ID:${user.uid}`)
-            // Saves user in firestore
-            createUser({
-                id: user.uid,
-                email: user.email
-            });
-            divRegisterContainer.classList.remove('show')
-
-        })
-        .catch((error) => {
-            console.log("Error en el sistema" + error.message, "Error: " + error.code);
-        });
-};
-
-document.getElementById("formRegister").addEventListener("submit", function (event) {
-    event.preventDefault();
-    let email = event.target.elements.email.value;
-    let pass = event.target.elements.pass.value;
-    let pass2 = event.target.elements.pass2.value;
-
-    pass === pass2 ? signUpUser(email, pass) : alert("error password");
-});
-
-const signInUser = (email, password) => {
-    firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            // Signed in
-            let user = userCredential.user;
-            console.log(`se ha logado ${user.email} ID:${user.uid}`);
-            console.log("USER", user);
-            divLoginContainer.classList.remove('show');
-        })
-        .catch((error) => {
-            let errorCode = error.code;
-            let errorMessage = error.message;
-            console.log(errorCode)
-            console.log(errorMessage)
-        });
-};
-
-const signOut = () => {
-    let user = firebase.auth().currentUser;
-
-    firebase.auth().signOut().then(() => {
-        console.log("Sale del sistema: " + user.email);
-        btnFavPrint.style.display = 'none';
-        btnAtrasBooks.style.display = 'none';
-        btnAtras.style.display = 'flex';
-    }).catch((error) => {
-        console.log("hubo un error: " + error);
-    });
-};
-
-document.getElementById("formLogin").addEventListener("submit", function (event) {
-    event.preventDefault();
-    let email = event.target.elements.email2.value;
-    let pass = event.target.elements.pass3.value;
-    signInUser(email, pass)
-});
-
-document.getElementById("salir").addEventListener("click", function (event) {
-    console.log('testing')
-    signOut();
-    titleLista.innerHTML = '';
-    containerListas.innerHTML = '';
-    sectionFiltrosIndex.style.display = 'flex';
-    sectionFiltrosBooks.style.display = 'none';
-    currentPage = 1;
-    divPage.style.display = 'none'
-    getIndex(`${urlIndex}`)
-        .then((resp) => {
-            const indexArray = resp.results
-            printIndex(indexArray)
-        })
-        .catch((error) => { console.error(error) })
-});
-
-// Listener de usuario en el sistema
-// Controlar usuario logado
-firebase.auth().onAuthStateChanged(function (user) {
-    const files = document.querySelector('#files');
-    const fotoPerfil = document.getElementById("fotoPerfil")
-
-    if (user) {
-        console.log(`Está en el sistema:${user.email} ${user.uid}`);
-
-        btnFavPrint.style.display = 'flex'
-
-        divLogout.style.display = 'block'
-        btnRegister.style.display = 'none'
-        btnLogin.style.display = 'none'
-
-        getFileUrl();
-        files.sytle.display = 'flex'
-        fotoPerfil.sytle.display = 'flex'
-
-    } else {
-        console.log("no hay usuarios en el sistema");
-
-        divLogout.style.display = 'none'
-        btnRegister.style.display = 'block'
-        btnLogin.style.display = 'block'
-
-        files.sytle.display = 'none'
-        fotoPerfil.sytle.display = 'none'
-    }
-});
-
-document.addEventListener('click', async (event) => {
-    const user = firebase.auth().currentUser;
-
-    if (event.target.classList.contains('btnFav')) {
-
-        if (user) {
-            const bookData = JSON.parse(event.target.id);
-            addBookFav(user.uid, bookData);
-            event.target.classList.remove('btnFav');
-            event.target.classList.add('btnFav2');
-            event.target.querySelector('img').src = 'assets/favorito2.png';
-
-        } else {
-            divLoginContainer.classList.add('show');
-        }
-
-    } else if (event.target.classList.contains('btnFav2')) {
-        if (user) {
-            const bookData = JSON.parse(event.target.id);
-            removeBookFav(user.uid, bookData);
-            event.target.classList.remove('btnFav2');
-            event.target.classList.add('btnFav');
-            event.target.querySelector('img').src = 'assets/favorito.png';
-        } else {
-            divLoginContainer.classList.add('show');
-        }
-    }
-});
-
-
-//****** FIRESTORE DB ******
-
-const addBookFav = (uid, bookData) => {
-    db.collection("users").where("id", "==", uid)
-        .get()
-        .then((docs) => {
-            docs.forEach(async (doc) => {
-                const docId = doc.id;
-                const userRef = db.collection('users').doc(docId);
-
-                await userRef.update({ favourites: firebase.firestore.FieldValue.arrayUnion(bookData) })
-                    .then(() => {
-                        alert('Libro guardado en Favoritos.')
-                    })
-                    .catch((error) => {
-                        throw `Error agregando el libro a favoritos: ${error}`;
-                    });
-            });
-        })
-        .catch((error) => {
-            alert(error);
-        });
-};
-
-const removeBookFav = (uid, bookData) => {
-    db.collection("users").where("id", "==", uid)
-        .get()
-        .then((docs) => {
-            docs.forEach(async (doc) => {
-                const docId = doc.id;
-                const userRef = db.collection('users').doc(docId);
-
-                await userRef.update({ favourites: firebase.firestore.FieldValue.arrayRemove(bookData) })
-                    .then(() => {
-                        alert('Libro eliminado de Favoritos.')
-                    })
-                    .catch((error) => {
-                        throw `Error agregando el libro a favoritos: ${error}`;
-                    });
-            });
-        })
-        .catch((error) => {
-            alert(error);
-        });
-};
-
-document.addEventListener('click', async (event) => {
-    if (event.target.matches('#btnFavPrint')) {
-        const user = firebase.auth().currentUser;
-        db.collection("users").where("id", "==", user.uid)
-            .get()
-            .then((docs) => {
-                docs.forEach((doc) => {
-                    const dataBooksToPrint = doc.data().favourites;
-                    printBooksFiltered(dataBooksToPrint)
-                })
-            })
-        btnAtrasBooks.style.display = 'flex';
-        btnAtras.style.display = 'none';
-
-        formTitulo.style.display = 'none';
-        formAutor.style.display = 'none';
-        selectAZAutor.style.display = 'none';
-
-        currentPage = 1;
-    }
-});
-
-// ****** Cloud Storage ******
-
-//function to save file
-function uploadFile() {
-    const user = firebase.auth().currentUser;
-
-    if (user) {
-        // Get the UID of the authenticated user
-        const uid = user.uid;
-
-    // Created a Storage Reference with root dir
-    var storageRef = firebase.storage().ref();
-    console.log("storage ref", storageRef);
-    // Get the file from DOM
-    var file = document.getElementById("files").files[0];
-    console.log(file);
-
-    //dynamically set reference to the file name
-    var fixedFileName = 'foto_perfil.jpg';
-    var thisRef = storageRef.child(`images/${uid}/${fixedFileName}`);
-
-    //put request upload file to firebase storage
-    thisRef.put(file).then(function (snapshot) {
-        alert("File Uploaded")
-        console.log('Uploaded a blob or file!');
-    });
-}
-}
-
-// Return URL of a certain image
-function getFileUrl() {
-    const user = firebase.auth().currentUser;
-    if(user) {
-        const uid = user.uid
-    //create a storage reference
-    var storage = firebase.storage().ref();
-    var fixedFileName = 'foto_perfil.jpg';
-    var filePath = `images/${uid}/${fixedFileName}`;
-
-    //get file url
-    storage.child(filePath)
-        .getDownloadURL()
-        .then(function (url) {
-            console.log(url);
-            displayImage(url)
-        })
-        .catch(function (error) {
-            console.log("error encountered");
-        });
-    }
-}
-
-
-function displayImage(url) {
-    console.log(url);
-            const fotoPerfil = document.getElementById("fotoPerfil")
-            fotoPerfil.src = ''
-            fotoPerfil.src = `${url}`;
-    }
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca NYTimes</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <div id="divHeader">
+                <button id="btnRegister" class="btnRegister">Register</button>
+                <button id="btnLogin" class="btnLogin">Login</button>
+                <div id="divLogout">
+                    <button id="salir" class="btnLogout">Logout</button>
+                    <img src="assets\foto_perfil.jpg" alt="foto_perfil" id="fotoPerfil">
+                    <input type="file" onchange="uploadFile(), getFileUrl()" id="files" name="files"/>
+                </label>
+                </div>
+            </div>
+            <p id="p1Header">New York Times <img id="registered" src="assets\Registered.png" alt="Registered"></p>
+            <p id="p2Header">Best Sellers</p>
+        </div>
+        <div id='titleLista'></div>
+        <hr id="hrHeader">
+    </header>
+
+    <main id="container">
+
+        <section id="sectionFiltrosIndex">
+            <select name="Updated" id="updated" class="filtros">
+                <option value="Todas">Updated: Todas</option>
+                <option value="Weekly">Updated: Weekly</option>
+                <option value="Monthly">Updated: Monthly</option>
+            </select>
+            <select name="Oldest" id="oldest" class="filtros">
+                <option value="Todas">Oldest: Sin Ordenar</option>
+                <option value="Ascendente">Oldest: Ascendente</option>
+                <option value="Descendente">Oldest: Descente</option>
+            </select>
+            <select name="Newest" id="newest" class="filtros">
+                <option value="Todas">Newsest: Sin Ordenar</option>
+                <option value="Ascendente">Newsest: Ascendente</option>
+                <option value="Descendente">Newsest: Descente</option>
+            </select>
+            <select name="AZ" id="az" class="filtros">
+                <option value="Todas">A-Z: Sin Ordenar</option>
+                <option value="AZ">A-Z</option>
+                <option value="ZA">Z-A</option>
+            </select>
+            <form id="formCategories" action="" method="get">
+                <select name="selectCategories" id="selectCategories" class="filtros" multiple>
+                    <option value="Todas">Todas las categorías</option>
+                </select>
+                <button id="btnCategories" type="submit">Filtra por Categoria/s</button>
+            </form>
+        </section>
+
+        <section id="sectionFiltrosBooks">
+            <button id="btnAtras" class="btnAtras"><img id="flecha_triangulo_izquierda"
+                    src="assets/flecha_triangulo_izquierda.png" alt="Icono flecha izquierda">BACK TO INDEX</button>
+            <button id="btnAtrasBooks" class="btnAtras" style="display: none;"><img id="flecha_triangulo_izquierda"
+                    src="assets/flecha_triangulo_izquierda.png" alt="Icono flecha izquierda">BACK TO BOOKS</button>
+            <button id="btnFavPrint" style="display: none;">Ver Favoritos <img class="favoritoPrint"
+                    src="assets/favoritoPrint.png" alt="Icono corazón favorito"></button>
+            <form id="formTitulo" action="" method="get">
+                <input type="text" name="titulo" id="titulo" placeholder="Escribe tu titulo" class="filtros">
+                <button id="btnTitulo" type="submit">Buscar</button>
+            </form>
+            <form id="formAutor" action="" method="get">
+                <input type="text" name="autor" id="autor" placeholder="Escribe tu Autor" class="filtros">
+                <button id="btnAutor" type="submit">Buscar</button>
+            </form>
+            <select name="AZAutor" id="azAutor" class="filtros">
+                <option value="Todas">Autor: Sin Ordenar</option>
+                <option value="AZ">Autor: A-Z</option>
+                <option value="ZA">Autor: Z-A</option>
+            </select>
+
+        </section>
+        <section id="sectionLoader">
+            <div id='loader' class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </section>
+
+        <section id="containerListas">
+
+        </section>
+
+        <!-- PAGINACIÓN -->
+        <div id="divPage" style="display: none;">
+            <button id="pageBack" class="btnsPage"><img id="flechaPrev" src="assets\flechaPrev.png"
+                    alt="flecha izquierda"></button>
+            <span id="pageInfo"></span>
+            <button id="pageNext" class="btnsPage"><img id="flechaNext" src="assets\flechaNext.png"
+                    alt="flecha derecha"></button>
+        </div>
+
+        <!-- AUTHENTICATION -->
+        <section>
+            <div id="forms-container">
+                <div id="divRegister-container" class="divPopup">
+                    <div id="divRegister" class="divInside">
+                        <div class="headExit">
+                            <h3 class="titleRegister">Formulario de Registro</h3>
+                            <button id="btnExitRegister" class="btnExit">
+                                <img class="cruz_exit" src="assets\cruz_exit.png" alt="cruz"
+                                    style="pointer-events: none;">
+                            </button>
+                        </div>
+                        <form id="formRegister" action="#" method="POST">
+                            <div>
+                                <input type="email" id="email" name="email" placeholder="Introduce email..."><br>
+                                <input type="password" id="pass" name="pass" placeholder="Introduce password..."><br>
+                                <input type="password" id="pass2" name="pass2" placeholder="Repite password..."><br><br>
+                                <input type="submit" value="Enviar">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="divLogin-container" class="divPopup">
+                    <div id="divLogin" class="divInside">
+                        <div class="headExit">
+                            <h3 class="titleRegister">Formulario de Login</h3>
+                            <button id="btnExitLogin" class="btnExit">
+                                <img class="cruz_exit" src="assets\cruz_exit.png" alt="cruz"
+                                    style="pointer-events: none;">
+                            </button>
+                        </div>
+                        <form id="formLogin" action="#" method="POST">
+                            <div>
+                                <input type="email" id="email2" name="email2" placeholder="Introduce email..."><br>
+                                <input type="password" id="pass3" name="pass3" placeholder="Introduce password..."><br>
+                                <input type="submit" value="Enviar">
+                            </div>
+                        </form>
+                        <a href="#" id="linkRegister">Si aún no estás registrado, clika aquí</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div>
+            <hr id="hrFooter">
+            <p id="p1Footer">New York Times <img id="registered2" src="assets\Registered2.png" alt="Registered"></p>
+            <p id="p2Footer">Best Sellers</p>
+            <button id="btnFooter"><img id="flechaFooter" src="assets\flecha_arriba.png"
+                    alt="flecha hacia arriba"></button>
+        </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
